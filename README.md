@@ -18,12 +18,15 @@
 > failure is structural, not parametric. Protocol, results and replay:
 > [`empirical/`](empirical/RESULTS-E1.md).
 >
-> **Second test (E2, preregistered, pending).** A candidate revision
+> **Second test (E2, preregistered).** A candidate revision
 > (`spontaneousModel: 'network-burst'`: shared network bursts + locally clustered
-> background, 9 parameters calibrated on the three E1 organoids only) is frozen and will
-> be confronted with five **unseen** organoids of the same dataset (sub-HO1…HO5), with the
-> E1 model as negative control. The default model stays `'poisson'`. Protocol:
-> [`empirical/PREREG-E2-DANDI-001603.md`](empirical/PREREG-E2-DANDI-001603.md).
+> background, 9 parameters calibrated on the three E1 organoids only) was frozen, made
+> public, then confronted with five **unseen** organoids (sub-HO1…HO5), with the E1 model
+> as negative control. Verdict: **PARTIALLY ADEQUATE** (0 incompatible, 2 compatible,
+> 3 marginal; the a-priori prediction "adequate" is refuted; the control stays
+> INADEQUATE). The structural E1 failure is fixed, but the calibration does not transfer
+> across organoids, notably to older (7-month) ones. The default model stays `'poisson'`.
+> [`empirical/RESULTS-E2.md`](empirical/RESULTS-E2.md).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-cyan.svg)](LICENSE)
 [![CI](https://github.com/christophejlegros-lgtm/ASTRA-Unified-ResearchLab-MCP-FCS-v3.1.0/actions/workflows/ci.yml/badge.svg)](https://github.com/christophejlegros-lgtm/ASTRA-Unified-ResearchLab-MCP-FCS-v3.1.0/actions)
