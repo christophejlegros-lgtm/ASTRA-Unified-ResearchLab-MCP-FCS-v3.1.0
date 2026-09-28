@@ -5,10 +5,14 @@
  * Faithful TypeScript port of the FinalSpark NeuroPlatform v2 control API
  * (https://finalspark-np.github.io/np-docs/np_core/doc_v2.html), backed by a
  * seeded spike generator so the full closed-loop can run without physical
- * hardware. Its spontaneous activity (independent Poisson trains, no network
- * coupling) was tested against real human brain organoids and found
- * INADEQUATE — see empirical/RESULTS-E1.md. It is an integration-test surrogate,
- * not a model of organoid activity. The class surface mirrors the official Python SDK:
+ * hardware. Its default spontaneous activity (`spontaneousModel: 'poisson'`,
+ * independent Poisson trains, no network coupling) was tested against real human
+ * brain organoids and found INADEQUATE — see empirical/RESULTS-E1.md. It is an
+ * integration-test surrogate, not a model of organoid activity. A candidate
+ * revision (`spontaneousModel: 'network-burst'`, shared network bursts + locally
+ * clustered background, calibrated on the E1 organoids only) is under
+ * preregistered test E2 on unseen organoids — see empirical/PREREG-E2-*.md.
+ * The class surface mirrors the official Python SDK:
  *
  *   StimParam · StimPolarity · StimShape · MEA            (utils.schemas / enumerations)
  *   IntanController   — _send_stimparam · _upload_stimparam · _count_spike · _close
@@ -185,6 +189,45 @@ function mulberry32(seed: number): () => number {
   };
 }
 
+/** Standard normal deviate (Box–Muller). */
+function normal01(rng: () => number): number {
+  const u = Math.max(1e-12, rng());
+  const v = rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/** Poisson deviate (Knuth for λ < 30, rounded normal approximation above). */
+function poissonDeviate(rng: () => number, lambda: number): number {
+  if (!(lambda > 0)) return 0;
+  if (lambda >= 30) return Math.max(0, Math.round(lambda + Math.sqrt(lambda) * normal01(rng)));
+  const L = Math.exp(-lambda);
+  let k = 0;
+  let p = 1;
+  do { k++; p *= rng(); } while (p > L);
+  return k - 1;
+}
+
+/** Gamma(shape k, scale θ) deviate (Marsaglia & Tsang 2000; boost for k < 1). */
+function gammaDeviate(rng: () => number, k: number, theta: number): number {
+  if (k < 1) return gammaDeviate(rng, k + 1, theta) * Math.pow(Math.max(1e-12, rng()), 1 / k);
+  const d = k - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    let x: number, v: number;
+    do { x = normal01(rng); v = 1 + c * x; } while (v <= 0);
+    v = v * v * v;
+    const u = Math.max(1e-12, rng());
+    if (Math.log(u) < 0.5 * x * x + d - d * v + d * Math.log(v)) return d * v * theta;
+  }
+}
+
+/** Geometric deviate on {1, 2, …} with mean m (m ≤ 1 → always 1). */
+function geometricDeviate(rng: () => number, m: number): number {
+  if (m <= 1) return 1;
+  const u = Math.max(1e-12, rng());
+  return 1 + Math.floor(Math.log(u) / Math.log(1 - 1 / m));
+}
+
 /** Exponential inter-spike interval for a homogeneous Poisson process of rate λ (Hz). */
 function expInterval(rng: () => number, rateHz: number): number {
   const u = Math.max(1e-12, rng());
@@ -216,14 +259,54 @@ export interface TriggerEventRecord {
   up: 0 | 1;
 }
 
+/**
+ * Parameters of the 'network-burst' spontaneous model (candidate revision after E1).
+ * Mirrored by empirical/e2_calibrate.py, where they were fitted to the E1
+ * (training) organoids sub-HO6/7/8 of DANDI 001603 only.
+ */
+export interface NetworkBurstParams {
+  burstRatePerMin: number;     // mean network-burst rate (bursts/min)
+  burstRegularity: number;     // gamma shape of inter-burst intervals (1 = Poisson)
+  burstDurationSec: number;    // burst duration D (spikes at onset + D·u^1.5, front-loaded)
+  participation: number;       // probability that an electrode joins a given burst
+  spikesPerBurst: number;      // mean spikes per participating electrode (× w_i)
+  bgMedianHz: number;          // median background rate across electrodes
+  heterogeneity: number;       // σ of log-normal electrode weights w_i (median-normalised)
+  clusterMeanSpikes: number;   // mean spikes per local background cluster (geometric)
+  intraClusterIsiSec: number;  // mean interval inside a local cluster (exponential)
+}
+
+/**
+ * Frozen E2 candidate — output of `python3 empirical/e2_calibrate.py` on the
+ * three E1 training organoids (empirical/results/E2_calibration.json).
+ * Do not edit: E2 is preregistered on exactly these values.
+ */
+export const E2_CALIBRATED_PARAMS: Readonly<NetworkBurstParams> = Object.freeze({
+  burstRatePerMin: 4.72,
+  burstRegularity: 6.65,
+  burstDurationSec: 0.244,
+  participation: 0.79,
+  spikesPerBurst: 1.71,
+  bgMedianHz: 0.493,
+  heterogeneity: 1.04,
+  clusterMeanSpikes: 7.36,
+  intraClusterIsiSec: 0.0565,
+});
+
+export type SpontaneousModel = 'poisson' | 'network-burst';
+
 export interface NeuroPlatformConfig {
   mode: 'simulate' | 'live';
   mea: MEA;
   fsname: string;           // experiment ID, e.g. "fs264"
   seed: number;
-  baselineRateHz: number;   // mean spontaneous rate across electrodes
+  baselineRateHz: number;   // mean spontaneous rate across electrodes ('poisson' model only)
   evokedGain: number;       // evoked-response sensitivity to charge
   noiseFloor_uV: number;    // base RMS noise
+  /** Spontaneous-activity model. 'poisson' (default) is the E1-refuted surrogate. */
+  spontaneousModel: SpontaneousModel;
+  /** Parameters for spontaneousModel = 'network-burst' (defaults: E2_CALIBRATED_PARAMS). */
+  networkBurst: NetworkBurstParams;
 }
 
 const DEFAULT_CONFIG: NeuroPlatformConfig = {
@@ -234,6 +317,8 @@ const DEFAULT_CONFIG: NeuroPlatformConfig = {
   baselineRateHz: 2.0,
   evokedGain: 0.018, // probability of evoked spike per pC of (balanced) charge
   noiseFloor_uV: 6.5,
+  spontaneousModel: 'poisson',
+  networkBurst: { ...E2_CALIBRATED_PARAMS },
 };
 
 /**
@@ -259,8 +344,19 @@ export class OrganoidMEA {
   totalStimulations = 0;
   totalChargeDelivered_nC = 0;
 
+  // 'network-burst' model state (unused in 'poisson' mode, which keeps its exact RNG stream)
+  private weights: number[] = [];
+  private viability0: number[] = []; // initial viability: calibrated rates hold for intact tissue
+  private nextBurstT = 0;
+  private nextClusterT: number[] = [];
+  private pending: number[][] = [];
+
   constructor(config: Partial<NeuroPlatformConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = {
+      ...DEFAULT_CONFIG,
+      ...config,
+      networkBurst: { ...DEFAULT_CONFIG.networkBurst, ...(config.networkBurst ?? {}) },
+    };
     this.rng = mulberry32(this.config.seed);
     this.initElectrodes();
   }
@@ -279,6 +375,73 @@ export class OrganoidMEA {
         totalSpikes: 0,
         cumulativeCharge_nC: 0,
       });
+    }
+    if (this.config.spontaneousModel === 'network-burst') this.initNetworkBurst();
+  }
+
+  /** Draw electrode weights and the first burst / cluster onsets ('network-burst' only). */
+  private initNetworkBurst(): void {
+    const p = this.config.networkBurst;
+    const raw = Array.from({ length: ELECTRODE_COUNT }, () => Math.exp(p.heterogeneity * normal01(this.rng)));
+    const sorted = [...raw].sort((a, b) => a - b);
+    const med = (sorted[ELECTRODE_COUNT / 2 - 1] + sorted[ELECTRODE_COUNT / 2]) / 2;
+    this.weights = raw.map((w) => w / med);
+    this.viability0 = this.electrodes.map((e) => e.viability);
+    this.electrodes.forEach((e, i) => { e.baselineRateHz = p.bgMedianHz * this.weights[i]; });
+    const meanIbi = 60 / p.burstRatePerMin;
+    this.nextBurstT = gammaDeviate(this.rng, p.burstRegularity, meanIbi / p.burstRegularity);
+    this.pending = Array.from({ length: ELECTRODE_COUNT }, () => []);
+    this.nextClusterT = this.weights.map((w) => expInterval(this.rng, (p.bgMedianHz * w) / Math.max(1, p.clusterMeanSpikes)));
+  }
+
+  /**
+   * 'network-burst' spontaneous activity over [clockSec, tEnd):
+   *  · network bursts — gamma-renewal onsets; each electrode joins with probability
+   *    `participation` and fires Poisson(spikesPerBurst·w_i) spikes at onset + D·u^1.5;
+   *  · background — per-electrode clusters, onsets Poisson at bgMedianHz·w_i / m,
+   *    Geometric(mean m) spikes separated by Exp(intraClusterIsiSec);
+   *  · rates scale with viability relative to its initial value (intact tissue =
+ *    calibrated rates); 1.5 ms absolute refractoriness.
+   * Spikes generated beyond tEnd are kept pending for the next call, so no spike is
+   * lost or duplicated at chunk boundaries. The random realisation does depend on
+   * the chunking (RNG draw order); the E2 export uses fixed 10 s chunks.
+   */
+  private advanceNetworkBurst(tEnd: number, counts: Int32Array, refractorySec: number): void {
+    const p = this.config.networkBurst;
+    const meanIbi = 60 / p.burstRatePerMin;
+    while (this.nextBurstT < tEnd) {
+      const t0 = this.nextBurstT;
+      for (let i = 0; i < ELECTRODE_COUNT; i++) {
+        if (this.rng() < p.participation) {
+          const n = poissonDeviate(this.rng, p.spikesPerBurst * this.weights[i] * (this.electrodes[i].viability / this.viability0[i]));
+          for (let k = 0; k < n; k++) this.pending[i].push(t0 + p.burstDurationSec * Math.pow(this.rng(), 1.5));
+        }
+      }
+      this.nextBurstT += gammaDeviate(this.rng, p.burstRegularity, meanIbi / p.burstRegularity);
+    }
+    const m = Math.max(1, p.clusterMeanSpikes);
+    for (let i = 0; i < ELECTRODE_COUNT; i++) {
+      const e = this.electrodes[i];
+      const clusterRate = (p.bgMedianHz * this.weights[i] * (e.viability / this.viability0[i])) / m;
+      while (this.nextClusterT[i] < tEnd) {
+        let t = this.nextClusterT[i];
+        const size = geometricDeviate(this.rng, m);
+        this.pending[i].push(t);
+        for (let k = 1; k < size; k++) { t += expInterval(this.rng, 1 / p.intraClusterIsiSec); this.pending[i].push(t); }
+        this.nextClusterT[i] += expInterval(this.rng, clusterRate);
+      }
+      const q = this.pending[i].sort((a, b) => a - b);
+      let j = 0;
+      for (; j < q.length && q[j] < tEnd; j++) {
+        const ts = q[j];
+        if (e.totalSpikes > 0 && ts - e.lastSpikeT < refractorySec) continue;
+        counts[i]++;
+        e.totalSpikes++;
+        const amp = 30 + 90 * this.rng();
+        this.logSpike({ channel: i, time: this.isoAt(ts), tSec: ts, amplitude_uV: amp });
+        e.lastSpikeT = ts;
+      }
+      this.pending[i] = q.slice(j);
     }
   }
 
@@ -304,6 +467,12 @@ export class OrganoidMEA {
     const counts = new Int32Array(ELECTRODE_COUNT);
     const tEnd = this.clockSec + dt;
     const refractorySec = 0.0015; // 1.5 ms absolute refractory
+
+    if (this.config.spontaneousModel === 'network-burst') {
+      this.advanceNetworkBurst(tEnd, counts, refractorySec);
+      this.clockSec = tEnd;
+      return counts;
+    }
 
     for (const e of this.electrodes) {
       // Viability scales effective firing rate (dead tissue is silent).

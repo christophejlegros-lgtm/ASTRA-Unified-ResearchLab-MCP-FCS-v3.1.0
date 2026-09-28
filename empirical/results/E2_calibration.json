@@ -1,0 +1,62 @@
+{
+  "training_files": [
+    "sub-HO6_ses-20250924T002106.nwb",
+    "sub-HO7_ses-20250924T002328.nwb",
+    "sub-HO8_ses-20250924T002134.nwb"
+  ],
+  "target": {
+    "S1_rate_hz": 0.5831660019444659,
+    "S2_isi_cv": 2.7063739474998516,
+    "S3_bursts_per_min": 4.967569356978722,
+    "S4_frac_in_bursts": 0.16967653289019302,
+    "S5_sttc": 0.05852910217410409
+  },
+  "params": {
+    "burstRatePerMin": 4.72,
+    "burstRegularity": 6.65,
+    "burstDurationSec": 0.244,
+    "participation": 0.79,
+    "spikesPerBurst": 1.71,
+    "bgMedianHz": 0.493,
+    "heterogeneity": 1.04,
+    "clusterMeanSpikes": 7.36,
+    "intraClusterIsiSec": 0.0565
+  },
+  "loss_search_seed1": 0.0070804346161268275,
+  "stats_10seeds": {
+    "S1_rate_hz": 0.600932387021794,
+    "S2_isi_cv": 2.8441210337767613,
+    "S3_bursts_per_min": 5.000824302539201,
+    "S4_frac_in_bursts": 0.1787781747274419,
+    "S5_sttc": 0.06509111711682111
+  },
+  "training_per_organoid": [
+    {
+      "n_trains": 50,
+      "n_active": 50,
+      "S1_rate_hz": 0.5075743596436878,
+      "S2_isi_cv": 3.45684431965876,
+      "S3_bursts_per_min": 6.400937737378526,
+      "S4_frac_in_bursts": 0.26078582434514636,
+      "S5_sttc": 0.0886216395108288
+    },
+    {
+      "n_trains": 30,
+      "n_active": 30,
+      "S1_rate_hz": 0.6234883741090285,
+      "S2_isi_cv": 2.6950593322444636,
+      "S3_bursts_per_min": 4.4010944054754955,
+      "S4_frac_in_bursts": 0.14275804661487237,
+      "S5_sttc": 0.05699907900811724
+    },
+    {
+      "n_trains": 35,
+      "n_active": 35,
+      "S1_rate_hz": 0.6184352720806813,
+      "S2_isi_cv": 1.9672181905963304,
+      "S3_bursts_per_min": 4.100675928082145,
+      "S4_frac_in_bursts": 0.10548572771056032,
+      "S5_sttc": 0.02996658800336625
+    }
+  ]
+}

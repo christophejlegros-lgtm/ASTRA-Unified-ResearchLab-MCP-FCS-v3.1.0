@@ -262,7 +262,8 @@ def sha256(path: str) -> str:
     return h.hexdigest()
 
 
-def run(real_paths: Sequence[str], sim_paths: Sequence[str], out_prefix: str) -> dict:
+def run(real_paths: Sequence[str], sim_paths: Sequence[str], out_prefix: str,
+        prereg: str = "empirical/PREREG-DANDI-001603.md") -> dict:
     assert len(real_paths) == len(sim_paths), "one --sim export per --real file"
     real_rows, sim_rows, excluded = [], [], []
     for rp, sp in zip(real_paths, sim_paths):
@@ -285,7 +286,7 @@ def run(real_paths: Sequence[str], sim_paths: Sequence[str], out_prefix: str) ->
         sim_rows.append({"matched_to": os.path.basename(rp), "seeds": [s.label for s in sims],
                          "per_seed": sim_stats, "median": sim_median})
 
-    report: dict = {"preregistration": "empirical/PREREG-DANDI-001603.md",
+    report: dict = {"preregistration": prereg,
                     "constants": {k: v for k, v in globals().items() if k.isupper() and isinstance(v, (int, float))},
                     "real": real_rows, "simulated": sim_rows, "excluded": excluded}
 
