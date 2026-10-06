@@ -1,7 +1,9 @@
 /**
  * ASTRA × FCS — Withdrawal conditions and the declared revision order
  * ═══════════════════════════════════════════════════════════════════
- * Synthesis S-1.5, "Ce qui ferait céder chaque thèse" / documents I v1.5, II v1.4.
+ * Synthesis S-1.6 (06·10·2026; unchanged here from S-1.5), "Ce qui ferait céder
+ * chaque thèse" / documents I v1.5, II v1.4. S-1.6's results bearing on M2, M3
+ * and the bridge without meeting their conditions are in ./optogenetics.ts.
  *
  * "Une condition d'abandon sans terme serait une clause de style." — an
  * abandonment condition with no deadline is a stylistic clause. The programme

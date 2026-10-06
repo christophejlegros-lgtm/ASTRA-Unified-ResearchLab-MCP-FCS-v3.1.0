@@ -2,7 +2,7 @@
  * ASTRA × FCS — The series' negative heuristic, enforced at runtime
  * ═════════════════════════════════════════════════════════════════
  * Five prohibitions, reproduced identically in documents I (table 3),
- * II (table 3) and IV, and in synthesis S-1.5.
+ * II (table 3) and IV, and in synthesis S-1.6.
  *
  * A negative heuristic is not a disclaimer. It says which moves the research
  * programme refuses to make, and a programme that states one and then makes the
@@ -120,14 +120,23 @@ export interface AggregationVerdict {
 /**
  * Decide whether a set of criteria may be combined into a single number.
  *
- * Admissible only when every criterion carries the SAME non-null unit — in which
- * case the combination is an arithmetic operation on commensurable quantities,
- * not an aggregation of ordinal ranks. Anything else is refused under P4.
+ * Admissible only when every criterion carries the SAME non-null PHYSICAL unit —
+ * in which case the combination is an arithmetic operation on commensurable
+ * quantities, not an aggregation of ordinal ranks. A unit label that names an
+ * ordinal position ("rank", "stratum", "degree", "level", "score"…) is treated
+ * as a rank whatever the caller declares. Anything else is refused under P4.
  *
  * This is the function that makes prohibition 4 operative rather than decorative:
  * call it before any weighted sum whose inputs include a rank, a stratum index,
  * a role, or an ablation degree.
  */
+/**
+ * Unit labels that name an ordinal position rather than a physical unit. A
+ * caller cannot make two ranks commensurable by giving them the same label:
+ * "stratum" + "stratum" is still a pair of ordinal positions, not a quantity.
+ */
+const ORDINAL_UNIT = /(?<!\p{L})(rank|ranks|rang|stratum|strata|strate|degree|degré|ordinal|level|niveau|class|classe|role|rôle|grade|score|index|indice)(?!\p{L})/iu;
+
 export function mayAggregate(criteria: readonly OrdinalCriterion[]): AggregationVerdict {
   if (criteria.length <= 1) {
     return {
@@ -136,7 +145,7 @@ export function mayAggregate(criteria: readonly OrdinalCriterion[]): Aggregation
       reasonEn: 'A single criterion: no aggregation takes place.',
     };
   }
-  const units = new Set(criteria.map((c) => c.unit));
+  const units = new Set(criteria.map((c) => (c.unit !== null && ORDINAL_UNIT.test(c.unit) ? null : c.unit)));
   const hasRank = units.has(null);
   if (!hasRank && units.size === 1) {
     return {
@@ -255,8 +264,28 @@ const FCS_LINT_RULES: readonly LintRule[] = Object.freeze([
   },
   {
     prohibition: 'P1',
+    pattern: /\b(proto-?)?(consciousness|sentience|awareness)[ -](level|score|index|degree|rating|grade)\b/i,
+    hintEn: 'P1 — "consciousness level/score/index" is a quantified degree under another word order.',
+  },
+  {
+    prohibition: 'P1',
+    pattern: /\b(proto-?)?(consciousness|sentience|awareness)\s*[:=]\s*[-+]?\d/i,
+    hintEn: 'P1 — a number assigned to consciousness is a quantified degree.',
+  },
+  {
+    prohibition: 'P1',
+    pattern: /\b\d+(?:[.,]\d+)?\s*(%|percent|per cent)\s+(proto-?)?(conscious|sentient|aware)\b/i,
+    hintEn: 'P1 — a percentage of consciousness is a quantified degree.',
+  },
+  {
+    prohibition: 'P1',
     pattern: new RegExp(`\\b(degré|niveau|quantité|score|indice) de (proto-?)?(conscience|expérience)${EOW}`, 'i'),
     hintEn: 'P1 — un degré de proto-conscience ou d\'expérience n\'est pas quantifiable.',
+  },
+  {
+    prohibition: 'P1',
+    pattern: new RegExp(`\\b(proto-?)?conscience\\s*[:=]\\s*[-+]?\\d|\\b\\d+(?:[.,]\\d+)?\\s*%\\s+(proto-?)?conscient(e|es|s)?${EOW}`, 'i'),
+    hintEn: 'P1 — un nombre attribué à la conscience est un degré quantifié.',
   },
   {
     prohibition: 'P2',
@@ -270,12 +299,16 @@ const FCS_LINT_RULES: readonly LintRule[] = Object.freeze([
   },
   {
     prohibition: 'P2',
-    pattern: /\b(Φ̃?|phi|ignition|PCI|broadcast)\s*(=|is|équivaut à|est)\s*(the |la |le )?(phenomenal|qualia|experience|phénoménal)/i,
+    pattern: /(Φ̃?|\bphi|\bignition|\bPCI|\bbroadcast)\s*(=|is|equals|équivaut à|est)\s*(the |la |le |l')?(phenomenal|qualia|experience|phénoménal|expérience)/i,
     hintEn: 'P2 — identifying an observable with phenomenal character crosses Block\'s distinction without an argument.',
   },
   {
     prohibition: 'P3',
-    pattern: /\b(fit|fits|fitted|ajustement)\b[^.]{0,60}\b(therefore|hence|donc|prouve|proves)\b[^.]{0,60}\bmechanism|mécanisme\b/i,
+    // The final alternation MUST be grouped: ungrouped, `…\bmechanism|mécanisme\b`
+    // matched any sentence containing "mécanisme" (fixed in v3.1.1).
+    pattern: new RegExp(
+      `\\b(fit|fits|fitted|ajustement)\\b[^.]{0,60}\\b(therefore|hence|donc|prouve|proves)\\b[^.]{0,60}\\b(mechanism|mécanisme)${EOW}`,
+      'i'),
     hintEn: 'P3 — a fitting success does not establish the mechanism.',
   },
   {
@@ -310,18 +343,38 @@ const FCS_LINT_RULES: readonly LintRule[] = Object.freeze([
  * word "not" somewhere else in the payload, which is why screening runs per
  * segment rather than over the whole string.
  */
-const EXEMPTIONS: readonly RegExp[] = Object.freeze([
-  // The move is being forbidden, refused or reported as inadmissible.
+/**
+ * MENTION exemptions: the move is being forbidden, refused or reported as
+ * inadmissible. Decided per SENTENCE, and defeated by a numeric assertion in
+ * the same sentence — "under prohibition 4, the degree of consciousness is
+ * 0.71" makes the move while naming the rule, and is not a mention.
+ */
+const MENTION_EXEMPTIONS: readonly RegExp[] = Object.freeze([
   /\b(no|not|never|nor)\s+(quantif|identif|infer|aggregat|comput|produc|deriv)/i,
   /\b(interdiction|interdit|proscri|refus|forbid|forbidden|prohibit)/i,
   /\bis not (quantifiable|admissible|available|a claim)\b/i,
   /\bn['’]est pas (quantifiable|recevable|disponible)\b/i,
   /\bprohibition [1-5]\b/i,
   /\binterdiction [1-5]\b/i,
-  // A bibliographic entry: a DOI, or an author–year citation.
-  /\b10\.\d{4,9}\//,
-  /\(\d{4}(?:\/\d{4})?[a-z]?\)/,
-  /\bet al\.,?\s*\d{4}\b/,
+]);
+
+/** A value asserted for the quantity: "is 0.71", "= 3", "vaut 0,82", "of 71 %". */
+const NUMERIC_ASSERTION =
+  /(=|:|\bis\b|\bwas\b|\bequals?\b|\breached\b|\bof\b|\bvaut\b|\best\b|\batteint\b|\bde\b)\s*(de\s+)?[-+]?\d+(?:[.,]\d+)?\s*%?/i;
+
+/**
+ * CITATION exemptions: a bibliographic entry. Decided per UNIT, so that a
+ * title stays attached to the marker that identifies it — but only when the
+ * unit IS an entry: a DOI, or an author list opening the unit ("Casali, A. G.,
+ * … (2013).", "Okasha, S. (2011).", "Dehaene & Changeux (2011)", "Koch et al.
+ * (2016)"). A year in parentheses at the end of an assertion no longer
+ * exempts it (v3.1.1).
+ */
+const CITATION_EXEMPTIONS: readonly RegExp[] = Object.freeze([
+  /\b10\.\d{4,9}\/\S+/,
+  /^[A-ZÀ-Þ][\p{L}'’-]+,\s+(?:[A-ZÀ-Þ]\.\s*-?)+(?:[A-Z]\.)?/u,
+  /^[A-ZÀ-Þ][\p{L}'’-]+\s+(?:&|and|et)\s+[A-ZÀ-Þ][\p{L}'’-]+,?\s+\(?\d{4}/u,
+  /^[A-ZÀ-Þ][\p{L}'’-]+\s+et al\.,?\s+\(?\d{4}/u,
 ]);
 
 /**
@@ -376,8 +429,9 @@ export function lintFcs(text: string): FcsLintFinding[] {
   const seen = new Set<string>();
 
   for (const unit of units(text)) {
-    if (EXEMPTIONS.some((e) => e.test(unit))) continue;
+    if (CITATION_EXEMPTIONS.some((e) => e.test(unit))) continue;
     for (const segment of sentencesOf(unit)) {
+      if (MENTION_EXEMPTIONS.some((e) => e.test(segment)) && !NUMERIC_ASSERTION.test(segment)) continue;
       for (const rule of FCS_LINT_RULES) {
         if (!rule.pattern.test(segment)) continue;
         const key = `${rule.prohibition}::${rule.pattern.source}`;

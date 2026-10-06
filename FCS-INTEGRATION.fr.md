@@ -1,6 +1,6 @@
 # Couche FCS — fonctionnalisme contraint par le substrat
 
-**ASTRA v3.1.0 · outils `fcs_*` (8) · ressources `astra://fcs/*` (4) · prompts (2)**
+**ASTRA v3.1.1 · outils `fcs_*` (8) · ressources `astra://fcs/*` (4) · prompts (2)**
 
 Implémentation, dans ASTRA, des valeurs de la série :
 
@@ -8,8 +8,8 @@ Implémentation, dans ASTRA, des valeurs de la série :
 |---|---|---|
 | I | Fonctionnalisme contraint par le substrat | v1.5 |
 | II | Complément métaphysique | v1.4 |
-| IV | L'implémentation neurochimique | v1.2 · 19·09·2026 |
-| S | Synthèse illustrée | S-1.5 · 19·09·2026 |
+| IV | L'implémentation neurochimique | v1.3 · 06·10·2026 (table inchangée depuis la v1.2) |
+| S | Synthèse illustrée | S-1.6 · 06·10·2026 |
 
 © Genève 2026 Christophe Jean Legros · Assistance Multi IA
 
@@ -90,11 +90,12 @@ signalisation et non du porteur.
 | **τ** | la plus longue de deux durées — action sur le porteur, variation physiologique propre ; décide si la classe peut individuer un épisode (~100 ms) | `pair.tauLog10` |
 | **ablation** | effet sur les signatures de niveau IV, en quatre degrés ordonnés | `pair.ablation` |
 
-### L'ordinalisation de τ — reconstruction déclarée
+### L'ordinalisation de τ — déclarée par le document IV v1.3
 
-Le document IV publie τ comme une **plage** et énonce ce que le critère sert à
-décider, sans en donner le découpage numérique. La réduction employée dans
-`EPISODE_WINDOW_ORDINALISATION` est donc déclarée, non lue :
+Le document IV v1.2 publiait τ comme une **plage**, et les strates, sans la
+réduction qui les relie. La réduction employée dans `EPISODE_WINDOW_ORDINALISATION`
+a été reconstruite comme celle qui reproduit les strates publiées ; **le document
+IV v1.3 (§2, 06·10·2026) la déclare désormais** :
 
 ```
 rang 0 — la plage descend à 10⁻¹ s ou en deçà : la classe agit dans la fenêtre de l'épisode
@@ -102,11 +103,15 @@ rang 1 — la plage démarre au-dessus de 10⁻¹ s, jusqu'à 10⁰ s : elle che
 rang 2 — la plage démarre au-dessus de 10⁰ s : elle ne peut pas individuer d'épisode
 ```
 
-Elle n'est pas ajustée à la réponse : la première coupe est la fenêtre de
-l'épisode que le document nomme, et la réduction **reproduit exactement les huit
-strates publiées** au §3 du document IV. `tests/fcs.test.ts` le vérifie à chaque
-exécution — si une erreur de transcription se glisse dans la table, ou si
-l'ordinalisation change, le test tombe.
+La réduction **reproduit exactement les huit strates publiées** (§3 du document
+IV), et `tests/fcs.test.ts` le vérifie à chaque exécution. Cet accord est un
+**contrôle de cohérence de la transcription, non une validation des coupes** :
+conclure de l'accord à la justesse de la réduction serait l'inférence que
+proscrit l'interdiction 3. Le choix porte du poids — sur dix réductions
+plausibles (`ALTERNATIVE_ORDINALISATIONS` : borne supérieure, point médian,
+exposant brut, coupes décalées ou moins nombreuses), **seule la réduction
+déclarée** reproduit les strates ; les autres déplacent d'un à quatorze couples.
+`ordinalisationSensitivity()` le rapporte, et `fcs_stratify` le renvoie.
 
 ```ts
 const result = canonicalStratification();
@@ -121,8 +126,8 @@ result.strata.length;       // 8
 |---|---|---|
 | S1 | 1 | l'ion comme charge mobile |
 | S2 | 2a | canaux, récepteurs ionotropes, connexines |
-| S3 | 2b · 3 · 4 · 11 | quatre couples incomparables entre eux |
-| S4 | 5 · 6 · 10a · 12a | quatre couples incomparables |
+| S3 | 2b · 3 · 4 · 11 | quatre couples ; 4 et 11 équivalents, les autres incomparables |
+| S4 | 5 · 6 · 10a · 12a | quatre couples ; 10a et 12a équivalents, les autres incomparables |
 | S5 | 9b · 10b | deux couples incomparables |
 | S6 | 7 · 8 | deux couples incomparables |
 | S7 | 9a | hormones, voie génomique |
@@ -131,6 +136,27 @@ result.strata.length;       // 8
 L'incomparabilité est un **résultat**, non une lacune : `fcs_compare` la
 rapporte explicitement, avec le motif — les départager exigerait l'agrégation
 que l'interdiction 4 refuse.
+
+### Ce que l'indice de strate ne dit pas (v3.1.1)
+
+Les strates **présentent** l'ordre partiel ; elles ne sont pas l'ordre. Deux faits
+sont calculés, non affirmés (`stratification.ts` §4, tests dans `tests/fcs.test.ts`) :
+
+- **Deux couples de strates différentes ne sont pas nécessairement comparables.**
+  Sur les 121 paires que les strates séparent, **28** ne sont ordonnées par aucune
+  dominance — ainsi le milieu extracellulaire (S3) et les neuromodulateurs (S4).
+  Lire l'indice comme un rang rétablirait l'ordre total que l'interdiction 4
+  retire. `fcs_compare` le signale désormais lorsque deux couples incomparables
+  occupent des strates différentes.
+- **La strate dépend du contexte.** Retirer l'ion (classe 1) fait remonter d'une
+  strate les seize autres couples ; six retraits sur dix-sept déplacent au moins un
+  autre couple. C'est un défaut d'indépendance à l'égard des options non
+  pertinentes, la condition d'Arrow sous-jacente à Okasha (2011) : l'indice
+  étiquette l'épluchage, il n'est pas une propriété du couple.
+
+L'objet fidèle au §2 du document IV est la **relation de dominance** — 93 paires
+ordonnées sur 136 — et son diagramme de Hasse. `fcs_stratify` rend les deux
+(`dominance.hasse`, `incomparableAcrossStrata`, `contextDependence`).
 
 ---
 
@@ -148,10 +174,28 @@ C'est le point où la couche cesse d'être une table et devient une intégration
 
 | Canal ASTRA | Couple | Rôle | Provenance |
 |---|---|---|---|
-| `eth.ca` — Ca²⁺ extracellulaire, nM | **1** — ions | constitutif | mesuré |
-| `eth.fr` — fréquence de décharge, Hz | **3** — acides aminés transmetteurs | générateur | dérivé |
+| *entrée externe* — Ca²⁺ extracellulaire, mM | **1** — ions | constitutif | mesuré (ASTRA n'a pas ce canal) |
+| `eth.ca` — Ca²⁺ libre **intracellulaire**, nM | *aucun couple* — second messager, hors classe 1 | — | rapporté, non lié |
+| `eth.fr` — fréquence de décharge médiane par unité, Hz | **3** — acides aminés transmetteurs | générateur | dérivé |
 | `eth.atp` — rapport ATP/ADP | **7** — métabolites énergétiques | permissif | mesuré |
 | `eth.viab` — viabilité, % | **2b** — Na⁺/K⁺-ATPase | permissif | dérivé (proxy) |
+
+**Calcium, corrigé en v3.1.1.** Jusqu'à la v3.1.0, `eth.ca` était lié à la classe 1
+comme « Ca²⁺ extracellulaire au bain de la MEA ». Or `ethics.ts` le définit comme
+le Ca²⁺ libre *intracellulaire* (seuils 100/200 nM) — le second messager que le
+document IV §2 et la synthèse S-1.6 placent explicitement hors de la classe 1 — et
+le Ca²⁺ du bain se compte en millimoles, non en nanomoles. Le seul canal attaché à
+un couple constitutif reposait sur l'erreur de catégorie que la série interdit.
+La classe 1 ne lit plus qu'une valeur extracellulaire en mM, fournie par
+l'appelant (`extracellularCalciumMm`) ; à défaut, elle est `withheld()`.
+
+**Fréquence de décharge, recalibrée en v3.1.1.** `eth.fr` est la fréquence
+spontanée médiane par unité (statistique S1 d'`empirical/confront.py`), rapportée
+aux huit organoïdes de DANDI 001603 analysés en E1/E2 : normal 0,14–0,63 Hz,
+stress à un facteur 2 près, détresse au-delà. L'ancienne plage de 15–45 Hz aurait
+déclaré en détresse chacun de ces organoïdes réels. C'est un intervalle de
+référence descriptif tiré d'un seul jeu de données, non un critère de bien-être
+validé.
 
 Un biomarqueur qui dérive devient ainsi l'énoncé « tel couple a quitté sa plage
 de fonctionnement », et non plus seulement un drapeau d'éthique. Un canal muet
@@ -214,13 +258,33 @@ non un mouvement en son sein — et `evaluateWithdrawal()` refuse de le coter.
 | P4 | scores agrégés sur des critères ordinaux sans échelle commune | `mayAggregate()` · `refuseAggregate()` |
 | P5 | inférer un rôle constitutif d'un effet d'ablation permissif | `mayInferConstitutive()` |
 
-Toute charge utile émise par la couche passe par **deux** linters — `lintClaim`
-(distinction de Block) et `lintFcs` (les cinq interdictions). Une charge qui
-échoue à l'un est renvoyée en erreur, non émise avec une réserve en note.
+Toute charge utile passe par **deux** linters — `lintClaim` (distinction de
+Block) et `lintFcs` (les cinq interdictions). Une charge qui échoue à l'un est
+renvoyée en erreur, non émise avec une réserve en note. **Depuis la v3.1.1, cela
+vaut pour tout le serveur**, et non plus pour la seule couche FCS :
+`src/lint-guard.ts` enveloppe chaque outil et chaque ressource (seul `fcs_lint`
+est exempté, puisqu'il renvoie la chaîne examinée). Jusqu'à la v3.1.0, cinquante
+des soixante-dix outils — dont `get_acm_score`, qui classait alors son composite
+en « niveaux de conscience » ABSENT…FULL — n'étaient pas filtrés. Cette échelle
+est retirée.
 
-**Usage et mention.** Le linter travaille par unité de champ puis par phrase, et
-exempte les unités qui *mentionnent* une interdiction ou qui sont
-bibliographiques — « Interdiction de quantifier un degré de proto-conscience »
+**Ce que sont les linters.** Des heuristiques par motifs : ils attrapent les
+formulations qu'ils encodent (la v3.1.1 ajoute les paraphrases courantes —
+« consciousness level 0.7 », « Consciousness: 0.7 », « 71 % conscious »,
+« Phi equals phenomenal experience »), non toute formulation possible. Ils
+filtrent la sortie d'ASTRA ; ils ne prouvent pas qu'aucune charge ne puisse
+porter une revendication interdite.
+
+**Usage et mention.** Les unités bibliographiques sont exemptées au niveau de
+l'unité — un DOI, ou une unité qui s'ouvre sur une liste d'auteurs (« Casali,
+A. G., … (2013). ») — afin qu'un titre reste attaché à son repère ; une année
+entre parenthèses à la fin d'une assertion ne l'exempte plus (v3.1.1). Les
+mentions d'une interdiction sont exemptées par **phrase**, et non lorsque la
+phrase affirme aussi une valeur (« selon l'interdiction 4, le degré de conscience
+vaut 0,71 » fait le mouvement). Corrigé en v3.1.1 : l'alternative finale de la
+règle P3 n'était pas groupée et se déclenchait sur toute phrase contenant
+« mécanisme ». Le principe demeure : les segments qui *mentionnent* une
+interdiction ou qui sont bibliographiques ne sont pas des assertions — « Interdiction de quantifier un degré de proto-conscience »
 énonce le mouvement pour l'interdire, et Casali et al. (2013) s'intitule
 *A theoretically based index of consciousness* que la formule plaise ou non. Un
 linter qui se déclenche sur lui-même finit désactivé, donc sans effet.
@@ -270,8 +334,8 @@ de τ sur axe logarithmique, fenêtre de l'épisode marquée), conformité, retr
 ## 9. Tests
 
 ```bash
-npm run test:fcs     # 69 tests de la couche FCS
-npm test             # suite complète — 323 tests
+npm run test:fcs     # 86 tests de la couche FCS
+npm test             # suite complète — 354 tests
 ```
 
 Le test porteur est `reproduces the eight published strata exactly`. Il

@@ -1,8 +1,12 @@
 /**
- * ASTRA MCP Server v3.0 — Complete Server Factory
- * =================================================
+ * ASTRA MCP Server — Complete Server Factory
+ * ==========================================
  *
- * 62 Tools · 11 Resources · 8 Prompts
+ * 70 Tools · 15 Resources · 10 Prompts (version: src/version.ts)
+ *
+ * Every tool and resource payload passes the server-wide claim guard
+ * (src/lint-guard.ts): Block's access/phenomenal linter and the five FCS
+ * prohibitions. `fcs_lint` alone is exempt, because it echoes screened text.
  *
  * Uses singleton modules: state (StateStore), snnEngine, acmModule, ethicsMonitor.
  * Returns a McpServer instance ready for transport connection.
@@ -32,6 +36,7 @@ import { logger } from './utils/logger.js';
 import { seedInfo } from './utils/rng.js';
 import type { AstraBridgeState, SpikeAction } from './bridge-state.js';
 import { toolAnnotations } from './tool-annotations.js';
+import { installLintGuard } from './lint-guard.js';
 
 // ── Shared SNN + WM (singleton, survives across sessions) ──
 
@@ -69,6 +74,8 @@ function getStateForWM(): AstraBridgeState {
 
 export function createAstraServer(): McpServer {
   const server = new McpServer({ name: 'astra', version: ASTRA_VERSION });
+  // Must precede every registration: wraps server.tool / server.resource.
+  installLintGuard(server);
 
   // ═══ CORE TOOLS (1–12) ═══
 
@@ -124,7 +131,7 @@ export function createAstraServer(): McpServer {
       return { content: [{ type: 'text' as const, text: JSON.stringify({ injected: neuronIds.length, strength, result }, null, 2) }] };
     });
 
-  server.tool('get_acm_score', 'Composite proxy score inspired by IIT/GWT/PAD — a computed index, not a measurement of consciousness', {}, toolAnnotations('get_acm_score'), async () => {
+  server.tool('get_acm_score', 'Engineering index of the simulation: three IIT/GWT/PAD-inspired proxies and their conventionally weighted sum. Not a measurement of consciousness; no class or level is derived (FCS prohibitions 1 and 4).', {}, toolAnnotations('get_acm_score'), async () => {
     const wmM = wmManager.wm.getMetrics();
     return { content: [{ type: 'text' as const, text: JSON.stringify({
       ...acmAdapter.getState(),

@@ -190,7 +190,7 @@ describe('set_parameter Bounds Validation', () => {
   });
 
   it('returns bounds info with successful updates', async () => {
-    const result = await client.callTool({ name: 'set_parameter', arguments: { path: 'eth.fr', value: 30 } });
+    const result = await client.callTool({ name: 'set_parameter', arguments: { path: 'eth.fr', value: 0.5 } });  // v3.1.1: median per-unit rate, DANDI scale
     const data = JSON.parse((result.content as Array<{ text: string }>)[0].text);
     assert.equal(data.success, true);
     // bounds info via state.getBounds()

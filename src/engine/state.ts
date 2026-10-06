@@ -55,17 +55,16 @@ export interface AcmState {
   integrationProxy: number;  // IIT-inspired integration proxy (formerly phi)
   broadcastProxy: number;    // GWT-inspired broadcast proxy (formerly gw)
   arousalProxy: number;      // PAD-inspired arousal proxy (formerly pad)
-  compositeScore: number;    // weighted composite score (formerly sc)
-  decisionClass: number;     // consciousness level class (formerly cls)
+  compositeScore: number;    // weighted engineering index (formerly sc) — not a degree of consciousness
   confidence: number;        // assessment confidence [0,1] (formerly conf)
   cycles: number;            // total assessment cycles (formerly cyc)
 }
 
 export interface EthicsState {
   viab: number;  // viability %
-  fr: number;    // firing rate Hz
+  fr: number;    // median per-unit spontaneous firing rate, Hz (DANDI 001603 statistic S1)
   atp: number;   // ATP/ADP ratio
-  ca: number;    // calcium nM
+  ca: number;    // INTRACELLULAR free calcium, nM — second messenger, not FCS class 1
 }
 
 export interface McpInternalState {
@@ -140,7 +139,6 @@ const PARAMETER_BOUNDS: Record<string, ParameterBounds> = {
   'acm.broadcastProxy':   { min: 0, max: 1 },
   'acm.arousalProxy':     { min: 0, max: 1 },
   'acm.compositeScore':   { min: 0, max: 1 },
-  'acm.decisionClass':    { min: 0, max: 5 },
   'acm.confidence':       { min: 0, max: 1 },
   'acm.cycles':           { min: 0, max: 1_000_000 },
 
@@ -169,9 +167,9 @@ function createDefaultState(): AstraState {
     fu: { fs: 0.45, cl: 0.40, kn: 0.15, va: 0, ci: 0 },
     acm: {
       integrationProxy: 0, broadcastProxy: 0, arousalProxy: 0,
-      compositeScore: 0, decisionClass: 0, confidence: 0, cycles: 0,
+      compositeScore: 0, confidence: 0, cycles: 0,
     },
-    eth: { viab: 95, fr: 28, atp: 3.5, ca: 65 },
+    eth: { viab: 95, fr: 0.4, atp: 3.5, ca: 65 },
     mcp: { calls: 0, tools: 12, resources: 5, connected: 0, uptime: 0 },
   };
 }

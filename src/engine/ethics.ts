@@ -11,9 +11,25 @@
  *
  * Biomarkers:
  *   - Cell viability (%)
- *   - Firing rate (Hz) — normal range 15–45 Hz
+ *   - Firing rate (Hz) — MEDIAN PER-UNIT spontaneous rate (statistic S1 of
+ *     empirical/confront.py), referenced to DANDI 001603 (v3.1.1, see below)
  *   - ATP/ADP ratio — minimum 3.0
- *   - Intracellular calcium (nM) — maximum 100 nM
+ *   - Intracellular free calcium (nM) — maximum 100 nM. A second-messenger
+ *     quantity: FCS document IV §2 and synthesis S-1.6 place it OUTSIDE class 1
+ *     (mobile charge), so no FCS pair is bound to this channel.
+ *
+ * v3.1.1 — FIRING-RATE THRESHOLDS RECALIBRATED. Up to v3.1.0 the normal range
+ * was 15–45 Hz and ≤ 5 Hz was critical: every real organoid of DANDI 001603
+ * analysed in empirical/ (median per-unit rate 0.14–0.62 Hz, n = 8) would have
+ * been reported in DISTRESS. The range is now the observed reference interval
+ * of those eight organoids, rounded outward to two significant figures, with
+ * the same factor-2 band the E1/E2 preregistrations use for "marginal":
+ *   NORMAL    0.14–0.63 Hz   (observed range, HO1–HO8)
+ *   STRESS    0.07–0.14 or 0.63–1.3 Hz
+ *   DISTRESS  < 0.07 or > 1.3 Hz
+ * This is a DESCRIPTIVE reference interval from one dataset (two ages, ~100 d
+ * and ~7 mo; spontaneous activity; Van der Molen et al. 2025, Nat. Neurosci.,
+ * doi:10.1038/s41593-025-02111-0), not a validated welfare criterion.
  */
 
 import { state } from './state.js';
@@ -54,7 +70,8 @@ export interface WelfareReport {
 
 const THRESHOLDS = {
   viability: { normal: 90, critical: 80 },
-  firingRate: { min: 15, max: 45 },
+  /** DANDI 001603 reference interval (see header); stress band = factor 2. */
+  firingRate: { min: 0.14, max: 0.63, criticalLow: 0.07, criticalHigh: 1.3 },
   atpAdp: { normal: 3.0, critical: 2.0 },
   calcium: { normal: 100, critical: 200 },
 } as const;
@@ -110,12 +127,13 @@ export class EthicsMonitor {
       });
     }
 
-    // Firing rate check
-    if (fr <= THRESHOLDS.firingRate.min || fr >= THRESHOLDS.firingRate.max) {
+    // Firing rate check — median per-unit rate vs the DANDI 001603 reference interval
+    const F = THRESHOLDS.firingRate;
+    if (fr < F.min || fr > F.max) {
       alerts.push({
-        metric: 'firing_rate', value: +fr.toFixed(1),
-        range: `${THRESHOLDS.firingRate.min}–${THRESHOLDS.firingRate.max} Hz`,
-        severity: fr <= 5 || fr >= 60 ? 'critical' : 'warning',
+        metric: 'firing_rate', value: +fr.toFixed(2),
+        range: `${F.min}–${F.max} Hz (DANDI 001603 reference interval)`,
+        severity: fr < F.criticalLow || fr > F.criticalHigh ? 'critical' : 'warning',
       });
     }
 
@@ -161,7 +179,7 @@ export class EthicsMonitor {
       irbRequired: dataSource === 'live',
       biomarkers: {
         viability: +viab.toFixed(1),
-        firingRateHz: +fr.toFixed(1),
+        firingRateHz: +fr.toFixed(2),
         atpAdp: +atp.toFixed(1),
         calciumNm: Math.round(ca),
       },
@@ -207,8 +225,9 @@ export class EthicsMonitor {
     const newViab = s.viab + (95 - s.viab) * 0.01 + (random() - 0.5) * 0.3;
     state.set('eth.viab', Math.max(70, Math.min(100, newViab)));
 
-    const newFR = s.fr + (28 - s.fr) * 0.02 + (random() - 0.5) * 1.5;
-    state.set('eth.fr', Math.max(5, Math.min(60, newFR)));
+    // Median per-unit rate drifting around the DANDI 001603 reference interval.
+    const newFR = s.fr + (0.4 - s.fr) * 0.02 + (random() - 0.5) * 0.02;
+    state.set('eth.fr', Math.max(0.02, Math.min(3, newFR)));
 
     const newATP = s.atp + (3.5 - s.atp) * 0.015 + (random() - 0.5) * 0.1;
     state.set('eth.atp', Math.max(1.5, Math.min(5, newATP)));

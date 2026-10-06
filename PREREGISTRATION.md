@@ -15,7 +15,7 @@ registry) **before** any session on living tissue.
 ASTRA ne traite aujourd'hui que des données simulées. Le jour où une donnée vivante le
 traversera, elle ne vaudra comme épreuve que si la prédiction a été fixée avant elle.
 Ce document fixe ce qui peut l'être à partir de la série FCS (document I v1.5, §4.3 ;
-document IV v1.2, §4 ; document II v1.4, §6.2) et **marque explicitement comme
+document IV v1.3, §4 ; document II v1.4, §6.2) et **marque explicitement comme
 « À FIXER » tout paramètre que ces documents ne donnent pas**. Aucune valeur numérique
 n'y est inventée.
 
@@ -35,7 +35,7 @@ saisit telle quelle.
 | Niveau visé | **I — substrat** (hypothèse du champ, ceinture) ; **IV** seulement via l'auxiliaire de pont (H3) |
 | Hors portée | la contrainte de substrat (noyau) — non révisable dans le programme ; toute revendication phénoménale |
 | Préparation de référence | tranche longitudinale d'hippocampe, paradigme de Chiang et al. (2019), doi:10.1113/JP276904 |
-| Texte de référence des protocoles | document IV v1.2, §4 (dispositif osmotique, confondants, contrôles) |
+| Texte de référence des protocoles | document IV v1.3, §4 (dispositif osmotique, confondants, contrôles) |
 
 ## 2. Hypothèses / Hypotheses
 
@@ -133,4 +133,4 @@ Les documents sources ne fixent pas ces valeurs ; elles **doivent** l'être avan
 - Chiang, C.-C., Shivacharan, R. S., Wei, X., Gonzalez-Reyes, L. E., & Durand, D. M. (2019). *J. Physiol.*, 597(1), 249–269. doi:10.1113/JP276904
 - Ding, F., O'Donnell, J., Xu, Q., Kang, N., Goldman, N., & Nedergaard, M. (2016). *Science*, 352(6285), 550–555. doi:10.1126/science.aad4821
 - Kleiner, J., & Hoel, E. (2021). Falsification and consciousness. *Neurosci. Conscious.*, niab001. doi:10.1093/nc/niab001
-- Série FCS : document I v1.5, document II v1.4, document IV v1.2, synthèse S-1.5 (19 septembre 2026), dossier `FCS v1.5/` de ce dépôt.
+- Série FCS : document I v1.5, document II v1.4, document IV v1.3 (6 octobre 2026 ; §4 inchangé depuis la v1.2), synthèse S-1.6 (6 octobre 2026), dossier `FCS v1.5/` de ce dépôt.

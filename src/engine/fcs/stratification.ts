@@ -51,16 +51,25 @@ import { PAIRS, type SpeciesFunctionPair } from './taxonomy.js';
  * The reduction takes the range's LOWER bound, because the question is whether
  * the class CAN act inside the episode window, not whether it always does.
  *
- * EPISTEMIC STATUS OF THIS CHOICE — normative, and verifiable.
- * It is not a free parameter fitted to the answer: the first cut is the episode
- * window the document itself names, and the reduction reproduces all eight
- * published strata exactly (tests/fcs.test.ts). Should a revision of document IV
- * publish a different τ ordinalisation, only the cuts below change; the
- * dominance engine is unaffected.
+ * EPISTEMIC STATUS OF THIS CHOICE — normative, declared, and load-bearing.
+ * Document IV v1.2 published the τ ranges and the strata without the reduction
+ * linking them. This reduction was RECONSTRUCTED as the one that reproduces the
+ * published strata, and document IV v1.3 (§2, 06·10·2026) now declares it.
+ * Reproducing the strata is therefore a consistency check of the transcription,
+ * NOT an independent validation of the cuts: inferring the correctness of a
+ * reduction from its fit to the published order would be the move prohibition 3
+ * forbids. The choice is load-bearing — of the alternatives in
+ * `ALTERNATIVE_ORDINALISATIONS` (upper bound, midpoint, raw exponent, shifted or
+ * fewer cuts), none reproduces the eight strata; `ordinalisationSensitivity()`
+ * reports it. The dominance engine is unaffected by the choice.
  */
 export interface TauOrdinalisation {
-  /** Decimal-exponent cuts applied to the range's lower bound, ascending. */
+  /** Decimal-exponent cuts, ascending, applied to the chosen point of the range. */
   cutsLog10: readonly number[];
+  /** Point of the τ range that is ordinalised. Default 'lower'. */
+  bound?: 'lower' | 'upper' | 'midpoint';
+  /** When true, the chosen point itself is used as the ordinal value (no cuts). */
+  raw?: boolean;
   basisFr: string;
   basisEn: string;
 }
@@ -73,8 +82,8 @@ export const EPISODE_WINDOW_ORDINALISATION: TauOrdinalisation = Object.freeze({
     'huit strates publiées, elle n\'est pas énoncée numériquement par la source.',
   basisEn:
     'Lower bound of the range, cut at 10⁻¹ s — the conscious-episode window named by document IV — ' +
-    'then at 10⁰ s. Declared reconstruction: it reproduces all eight published strata exactly; it is ' +
-    'not stated numerically by the source.',
+    'then at 10⁰ s. Reconstructed as the reduction that reproduces the eight published strata, and ' +
+    'declared by document IV v1.3 §2. Reproduction checks the transcription; it does not validate the cuts.',
 });
 
 /** Ordinal rank of a pair's τ under a given reduction. Lower = closer to the carrier. */
@@ -82,11 +91,30 @@ export function tauRank(
   pair: SpeciesFunctionPair,
   ord: TauOrdinalisation = EPISODE_WINDOW_ORDINALISATION,
 ): number {
-  const lower = pair.tauLog10[0];
+  const [lo, hi] = pair.tauLog10;
+  const point = ord.bound === 'upper' ? hi : ord.bound === 'midpoint' ? (lo + hi) / 2 : lo;
+  if (ord.raw) return point;
   let rank = 0;
-  for (const cut of ord.cutsLog10) if (lower > cut) rank++;
+  for (const cut of ord.cutsLog10) if (point > cut) rank++;
   return rank;
 }
+
+/**
+ * Plausible alternative reductions of the τ range, for the sensitivity report.
+ * Each is a reading a careful reader of document IV v1.2 could have made.
+ */
+export const ALTERNATIVE_ORDINALISATIONS: ReadonlyArray<{ id: string; ord: TauOrdinalisation }> = Object.freeze([
+  { id: 'lower-cuts[-1,0] (declared)', ord: EPISODE_WINDOW_ORDINALISATION },
+  { id: 'lower-cuts[-1]', ord: { cutsLog10: [-1], basisFr: '', basisEn: 'Single cut at the episode window.' } },
+  { id: 'lower-cuts[-2,0]', ord: { cutsLog10: [-2, 0], basisFr: '', basisEn: 'First cut one decade earlier.' } },
+  { id: 'lower-cuts[-1,1]', ord: { cutsLog10: [-1, 1], basisFr: '', basisEn: 'Second cut one decade later.' } },
+  { id: 'lower-cuts[-1,0,2]', ord: { cutsLog10: [-1, 0, 2], basisFr: '', basisEn: 'An extra cut at 10² s.' } },
+  { id: 'lower-raw', ord: { cutsLog10: [], raw: true, basisFr: '', basisEn: 'Lower-bound exponent used as is.' } },
+  { id: 'upper-cuts[-1,0]', ord: { cutsLog10: [-1, 0], bound: 'upper', basisFr: '', basisEn: 'Upper bound, declared cuts.' } },
+  { id: 'upper-raw', ord: { cutsLog10: [], bound: 'upper', raw: true, basisFr: '', basisEn: 'Upper-bound exponent used as is.' } },
+  { id: 'midpoint-raw', ord: { cutsLog10: [], bound: 'midpoint', raw: true, basisFr: '', basisEn: 'Range midpoint used as is.' } },
+  { id: 'midpoint-cuts[-1,0]', ord: { cutsLog10: [-1, 0], bound: 'midpoint', basisFr: '', basisEn: 'Midpoint, declared cuts.' } },
+]);
 
 // ── 2. Pareto dominance ───────────────────────────────────────────
 
@@ -197,13 +225,113 @@ export function canonicalStratification(): StratificationResult {
   return _cached;
 }
 
-// ── 4. Pairwise explanation ───────────────────────────────────────
+// ── 4. The dominance relation itself, and what the strata add to it ──
+
+/**
+ * WHY THIS SECTION EXISTS (v3.1.1). The strata are a PRESENTATION of the
+ * partial order — each pair labelled by the peeling round that removes it — not
+ * the order. Two facts follow, and both are computed here rather than asserted:
+ *
+ *  1. Pairs in different strata need not be comparable. A stratum index places
+ *     the extracellular medium (3) "above" the neuromodulators (4) although
+ *     neither dominates the other. Reading strata as ranks re-introduces the
+ *     total order prohibition 4 removed.
+ *  2. A pair's stratum depends on which other pairs are present: removing one
+ *     pair can shift others. That is a failure of independence of irrelevant
+ *     alternatives — the Arrovian condition behind Okasha (2011) — so the index
+ *     is a context-dependent label, not a property of the pair.
+ *
+ * The object faithful to document IV §2 is the dominance relation; its Hasse
+ * diagram (cover relation) is the minimal exact description of it.
+ */
+export interface DominanceRelation {
+  /** All ordered pairs (a dominates b). */
+  dominates: Array<[string, string]>;
+  /** Cover relation: a dominates b with no c such that a > c > b. */
+  hasse: Array<[string, string]>;
+  /** Unordered pairs with identical ordinal coordinates. */
+  equivalent: Array<[string, string]>;
+  comparableCount: number;
+  unorderedPairCount: number;
+}
+
+export function dominanceRelation(
+  pairs: readonly SpeciesFunctionPair[] = PAIRS,
+  ord: TauOrdinalisation = EPISODE_WINDOW_ORDINALISATION,
+): DominanceRelation {
+  const dom: Array<[string, string]> = [];
+  const equivalent: Array<[string, string]> = [];
+  const key = (p: SpeciesFunctionPair) => `${p.d}|${tauRank(p, ord)}|${p.ablation}`;
+  for (let i = 0; i < pairs.length; i++) {
+    for (let j = 0; j < pairs.length; j++) {
+      if (i === j) continue;
+      if (dominates(pairs[i], pairs[j], ord).dominates) dom.push([pairs[i].id, pairs[j].id]);
+      if (i < j && key(pairs[i]) === key(pairs[j])) equivalent.push([pairs[i].id, pairs[j].id]);
+    }
+  }
+  const has = new Set(dom.map(([a, b]) => `${a}>${b}`));
+  const ids = pairs.map((p) => p.id);
+  const hasse = dom.filter(([a, b]) => !ids.some((c) => c !== a && c !== b && has.has(`${a}>${c}`) && has.has(`${c}>${b}`)));
+  const n = pairs.length;
+  return { dominates: dom, hasse, equivalent, comparableCount: dom.length, unorderedPairCount: (n * (n - 1)) / 2 };
+}
+
+/** Pairs placed in different strata that the dominance relation does NOT order. */
+export function incomparableAcrossStrata(
+  pairs: readonly SpeciesFunctionPair[] = PAIRS,
+  ord: TauOrdinalisation = EPISODE_WINDOW_ORDINALISATION,
+): { pairs: Array<{ a: string; b: string; strata: [number, number] }>; crossStratumCount: number } {
+  const { byPair } = stratify(pairs, ord);
+  const out: Array<{ a: string; b: string; strata: [number, number] }> = [];
+  let cross = 0;
+  for (let i = 0; i < pairs.length; i++) {
+    for (let j = i + 1; j < pairs.length; j++) {
+      const a = pairs[i], b = pairs[j];
+      if (byPair[a.id] === byPair[b.id]) continue;
+      cross++;
+      if (!dominates(a, b, ord).dominates && !dominates(b, a, ord).dominates) {
+        out.push({ a: a.id, b: b.id, strata: [byPair[a.id], byPair[b.id]] });
+      }
+    }
+  }
+  return { pairs: out, crossStratumCount: cross };
+}
+
+/** For each pair removed from the table, the other pairs whose stratum changes. */
+export function stratumContextDependence(
+  pairs: readonly SpeciesFunctionPair[] = PAIRS,
+  ord: TauOrdinalisation = EPISODE_WINDOW_ORDINALISATION,
+): Array<{ removed: string; shifted: Array<{ id: string; from: number; to: number }> }> {
+  const full = stratify(pairs, ord).byPair;
+  const out: Array<{ removed: string; shifted: Array<{ id: string; from: number; to: number }> }> = [];
+  for (const x of pairs) {
+    const rest = pairs.filter((p) => p.id !== x.id);
+    const s = stratify(rest, ord).byPair;
+    const shifted = rest.filter((p) => s[p.id] !== full[p.id]).map((p) => ({ id: p.id, from: full[p.id], to: s[p.id] }));
+    if (shifted.length > 0) out.push({ removed: x.id, shifted });
+  }
+  return out;
+}
+
+/** How many published strata each alternative τ reduction would reproduce. */
+export function ordinalisationSensitivity(
+  pairs: readonly SpeciesFunctionPair[] = PAIRS,
+): Array<{ id: string; strataCount: number; divergenceCount: number; reproducesPublished: boolean }> {
+  return ALTERNATIVE_ORDINALISATIONS.map(({ id, ord }) => {
+    const r = stratify(pairs, ord);
+    return { id, strataCount: r.strata.length, divergenceCount: r.divergences.length, reproducesPublished: r.reproducesPublished };
+  });
+}
+
+// ── 5. Pairwise explanation ───────────────────────────────────────
 
 export interface ComparisonReport {
   a: string;
   b: string;
   relation: 'a-dominates-b' | 'b-dominates-a' | 'incomparable' | 'equivalent';
   detail: { d: [number, number]; tauRank: [number, number]; ablation: [number, number] };
+  /** Strata of a and b — ordinal labels of the peeling, NOT an order between them. */
+  strata: [number, number];
   noteFr: string;
   noteEn: string;
 }
@@ -250,16 +378,26 @@ export function comparePairs(
     },
   };
 
+  const strat = stratify(PAIRS, ord).byPair;
+  const strata: [number, number] = [strat[aId], strat[bId]];
+  const acrossStrata = relation === 'incomparable' && strata[0] !== strata[1]
+    ? {
+        fr: ` Ils occupent des strates différentes (${strata[0]} et ${strata[1]}) : l'indice de strate n'ordonne pas deux couples incomparables.`,
+        en: ` They sit in different strata (${strata[0]} and ${strata[1]}): a stratum index does not order two incomparable pairs.`,
+      }
+    : { fr: '', en: '' };
+
   return {
     a: aId,
     b: bId,
     relation,
+    strata,
     detail: {
       d: [a.d, b.d],
       tauRank: [tauRank(a, ord), tauRank(b, ord)],
       ablation: [a.ablation, b.ablation],
     },
-    noteFr: notes[relation].fr,
-    noteEn: notes[relation].en,
+    noteFr: notes[relation].fr + acrossStrata.fr,
+    noteEn: notes[relation].en + acrossStrata.en,
   };
 }

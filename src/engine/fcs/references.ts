@@ -2,8 +2,8 @@
  * ASTRA × FCS — Bibliography
  * ══════════════════════════
  * Transcribed from the source documents' own apparatus. Every entry below
- * carries the (v) mark in documents I v1.5, II v1.4, IV v1.2 or synthesis
- * S-1.5: its DOI was resolved, at drafting or on 19 September 2026, against
+ * carries the (v) mark in documents I v1.5, II v1.4, IV v1.2 (bibliography
+ * unchanged in v1.3) or synthesis S-1.5 (carried into S-1.6): its DOI was resolved, at drafting or on 19 September 2026, against
  * the DOI Foundation Handle system or against Crossref metadata.
  *
  * ⚠ No DOI here was minted, reconstructed or inferred by ASTRA. An entry the

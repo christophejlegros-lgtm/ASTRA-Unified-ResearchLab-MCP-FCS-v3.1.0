@@ -72,7 +72,7 @@ export const TOOL_ANNOTATIONS = {
   snn_step: evolve('Advance SNN Simulation'),
   snn_reset: overwrite('Reset SNN Engine'),
   inject_spikes: evolve('Spike Injection'),
-  get_acm_score: read('Composite Consciousness-Theory Proxy (not a measurement)'),
+  get_acm_score: read('ACM Proxy Engineering Index (not a measurement)'),
   check_ethics: read('IRB Neural Welfare Check'),
   set_parameter: overwrite('Modify State Parameter'),
   get_platform_status: read('Bio-Computing Platforms'),

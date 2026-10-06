@@ -4,9 +4,12 @@ message: >-
   has a DOI (e.g. through the Zenodo–GitHub integration), cite that DOI.
 type: software
 title: "ASTRA — Agent-orchestrated Simulation Testbed for Research on Awareness (MCP server, FCS layer)"
-version: 3.1.0
-date-released: 2026-09-23
-license: MIT
+version: 3.1.1
+date-released: 2026-10-06
+# Composite licensing: MIT for the original work; python/the_consciousness_ai/ and the
+# nine ported files of src/engine/tcai/ follow the upstream NON-COMMERCIAL licence.
+# No single SPDX identifier describes the whole, hence license-url (CFF 1.2.0).
+license-url: "https://github.com/christophejlegros-lgtm/ASTRA-Unified-ResearchLab-MCP-FCS-v3.1.0/blob/main/THIRD_PARTY_NOTICES.md"
 repository-code: "https://github.com/christophejlegros-lgtm/ASTRA-Unified-ResearchLab-MCP-FCS-v3.1.0"
 authors:
   - family-names: Legros

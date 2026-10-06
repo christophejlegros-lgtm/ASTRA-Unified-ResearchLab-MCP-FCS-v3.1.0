@@ -24,12 +24,13 @@ import { lintClaim } from './engine/tcai/phenomenal-guard.js';
 import {
   PAIRS, ROLE_DEFINITIONS, ABLATION_DEGREES, formatTau,
   canonicalStratification, stratify, comparePairs,
+  dominanceRelation, incomparableAcrossStrata, stratumContextDependence, ordinalisationSensitivity,
   EPISODE_WINDOW_ORDINALISATION, type TauOrdinalisation,
   LEVELS, LEVEL_ORDER, CORE, FIELD_HYPOTHESIS,
   auditSubstrate, auditAll, levelCoverage, type BiomarkerInputs,
   evaluateWithdrawal, THESES, REVISION_ORDER, type StrandOutcomes,
   lintFcs, PROHIBITIONS, PROHIBITION_ORDER, mayAggregate, mayInferConstitutive,
-  REFERENCES, DOI_NOTE, fcsReport,
+  REFERENCES, DOI_NOTE, fcsReport, beltExtensionS16,
 } from './engine/fcs/index.js';
 import { toolAnnotations } from './tool-annotations.js';
 
@@ -130,10 +131,12 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
   // ── 65 · fcs_stratify ──
   server.tool(
     'fcs_stratify',
-    'Recompute the partial order by Pareto dominance over the three ordinal sub-criteria, and report whether ' +
-    'it reproduces the eight strata published in document IV §3. The τ ordinalisation is exposed as a ' +
-    'parameter: the default cuts the range\'s lower bound at 10⁻¹ s — the conscious-episode window the document ' +
-    'names — then at 10⁰ s. Changing it changes the order, which is the point of declaring it.',
+    'Recompute the partial order by Pareto dominance over the three ordinal sub-criteria and return the ' +
+    'dominance relation itself (all ordered pairs and its Hasse diagram), the strata as a presentation of it, ' +
+    'the pairs that different strata do NOT order, how strata shift when one pair is removed, and how ' +
+    'alternative τ reductions fare against the eight strata of document IV §3. The τ ordinalisation is a ' +
+    'parameter: the default — declared in document IV v1.3 §2 — cuts the range\'s lower bound at 10⁻¹ s, ' +
+    'then at 10⁰ s. Reproducing the strata checks the transcription; it does not validate the cuts.',
     {
       tauCutsLog10: z.array(z.number()).max(4).optional()
         .describe('Ascending decimal-exponent cuts on the τ range\'s lower bound. Default [-1, 0].'),
@@ -147,9 +150,35 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
           }
         : EPISODE_WINDOW_ORDINALISATION;
       const result = stratify(PAIRS, ord);
+      const relation = dominanceRelation(PAIRS, ord);
+      const across = incomparableAcrossStrata(PAIRS, ord);
       return emit({
         rule: result.rule,
         ordinalisation: result.ordinalisation,
+        dominance: {
+          comparable: relation.comparableCount,
+          unorderedPairs: relation.unorderedPairCount,
+          hasse: relation.hasse,
+          equivalent: relation.equivalent,
+          noteEn:
+            'The dominance relation is the order document IV §2 defines; the Hasse diagram is its minimal exact ' +
+            'description. Strata are a presentation of it, not a ranking.',
+        },
+        incomparableAcrossStrata: {
+          count: across.pairs.length,
+          crossStratumPairs: across.crossStratumCount,
+          pairs: across.pairs,
+          noteEn:
+            'These pairs sit in different strata yet neither dominates the other. Reading the stratum index as a ' +
+            'rank would order them, which is the total order prohibition 4 removed.',
+        },
+        contextDependence: {
+          removalsShiftingOthers: stratumContextDependence(PAIRS, ord),
+          noteEn:
+            'A stratum depends on which other pairs are present (failure of independence of irrelevant ' +
+            'alternatives): it is a label of the peeling, not a property of the pair.',
+        },
+        ordinalisationSensitivity: ordinalisationSensitivity(PAIRS),
         strataCount: result.strata.length,
         strata: result.strata.map((s) => ({
           index: s.index,
@@ -206,12 +235,18 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
     'fcs_conformance',
     'Audit one substrate — or all three — against the seventeen species–function pairs: which pairs it ' +
     'realises, which it only simulates, which are absent, and which ASTRA has no channel to determine. Binds ' +
-    'the live IRB welfare biomarkers to the taxonomy (Ca²⁺ → class 1, ATP/ADP → class 7, firing rate → class 3 ' +
-    'generator, viability → class 2b proxy). Returns a profile, never a conformance score.',
+    'the live IRB welfare biomarkers to the taxonomy (ATP/ADP → class 7, median per-unit firing rate → class 3 ' +
+    'generator, viability → class 2b proxy). Class 1 (mobile charge) reads only an EXTRACELLULAR calcium value ' +
+    'in mM supplied by the caller; ASTRA\'s eth.ca is intracellular second-messenger Ca²⁺ and binds to no pair. ' +
+    'Returns a profile, never a conformance score.',
     {
       substrate: z.enum(SUBSTRATE_KINDS).optional().describe('One substrate; omit for all three.'),
-      calciumNm: z.number().min(0).optional(),
-      firingRateHz: z.number().min(0).optional(),
+      calciumNm: z.number().min(0).optional()
+        .describe('Intracellular free Ca²⁺, nM (second messenger) — reported, bound to no pair.'),
+      extracellularCalciumMm: z.number().min(0).max(20).optional()
+        .describe('Extracellular Ca²⁺ at the bath, mM — the only reading bound to class 1.'),
+      firingRateHz: z.number().min(0).optional()
+        .describe('Median per-unit spontaneous firing rate, Hz (DANDI 001603 reference interval 0.14–0.63 Hz).'),
       atpAdpRatio: z.number().min(0).optional(),
       viabilityPct: z.number().min(0).max(100).optional(),
       useLiveBiomarkers: z.boolean().optional().describe('Start from the live state store, overridden by any value given above. Default true.'),
@@ -220,6 +255,7 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
       const base = useLiveBiomarkers === false ? {} : liveBiomarkers(deps);
       const bio: BiomarkerInputs = { ...base };
       if (overrides.calciumNm !== undefined) bio.calciumNm = overrides.calciumNm;
+      if (overrides.extracellularCalciumMm !== undefined) bio.extracellularCalciumMm = overrides.extracellularCalciumMm;
       if (overrides.firingRateHz !== undefined) bio.firingRateHz = overrides.firingRateHz;
       if (overrides.atpAdpRatio !== undefined) bio.atpAdpRatio = overrides.atpAdpRatio;
       if (overrides.viabilityPct !== undefined) bio.viabilityPct = overrides.viabilityPct;
@@ -304,7 +340,8 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
     { description: 'FCS four-level framework, core/belt partition and ASTRA coverage', mimeType: 'application/json' },
     async () => ({ contents: [{ uri: 'astra://fcs/framework', mimeType: 'application/json',
       text: JSON.stringify({ core: CORE, fieldHypothesis: FIELD_HYPOTHESIS,
-        levels: LEVEL_ORDER.map((l) => LEVELS[l]), coverage: levelCoverage() }, null, 2) }] }));
+        levels: LEVEL_ORDER.map((l) => LEVELS[l]), coverage: levelCoverage(),
+        beltExtension: beltExtensionS16() }, null, 2) }] }));
 
   server.resource('fcs-taxonomy', 'astra://fcs/taxonomy',
     { description: '17 species–function pairs in their Pareto strata', mimeType: 'application/json' },
@@ -313,6 +350,8 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
       return { contents: [{ uri: 'astra://fcs/taxonomy', mimeType: 'application/json',
         text: JSON.stringify({ rule: strat.rule, ordinalisation: strat.ordinalisation,
           reproducesPublished: strat.reproducesPublished,
+          hasse: dominanceRelation().hasse,
+          strataNoteEn: 'Strata present the partial order; pairs in different strata may be incomparable (see fcs_stratify).',
           strata: strat.strata.map((s) => ({ index: s.index, pairs: s.pairs.map((p) => ({ id: p.id, labelEn: p.labelEn, role: p.role, d: p.d, tau: formatTau(p), ablation: p.ablation })) })) }, null, 2) }] };
     });
 

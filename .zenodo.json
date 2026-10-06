@@ -1,7 +1,7 @@
 {
   "title": "ASTRA — Agent-orchestrated Simulation Testbed for Research on Awareness (MCP server, FCS layer)",
   "upload_type": "software",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "license": "MIT",
   "creators": [
     {
@@ -18,5 +18,5 @@
     "biocomputing",
     "epistemology"
   ],
-  "notes": "Random streams are seeded (ASTRA_SEED, default 20260923; mulberry32). Cite the archived DOI of the release you used."
+  "notes": "Licensing is composite: MIT for the original work; python/the_consciousness_ai/ and nine ported files of src/engine/tcai/ follow the upstream non-commercial licence (THIRD_PARTY_NOTICES.md). The single licence field of this record names the MIT part only. Random streams are seeded (ASTRA_SEED, default 20260923; mulberry32). Cite the archived DOI of the release you used."
 }

@@ -43,7 +43,7 @@ describe('StateStore', () => {
     assert.equal(s.acm.broadcastProxy, 0);
     assert.equal(s.acm.arousalProxy, 0);
     assert.equal(s.acm.compositeScore, 0);
-    assert.equal(s.acm.decisionClass, 0);
+    assert.ok(!('decisionClass' in s.acm), 'no consciousness class is stored (v3.1.1)');
   });
 
   it('get() retrieves nested values via dot-notation', () => {
@@ -352,10 +352,15 @@ describe('ACMModule', () => {
     assert.ok(result.formula.includes('PAD̃'), 'Formula should use PAD̃ not PAD');
   });
 
-  it('includes classLabel in results', () => {
-    const result = acm.assess();
-    assert.ok(result.classLabel);
-    assert.ok(['ABSENT', 'MINIMAL', 'PARTIAL', 'MODERATE', 'HIGH', 'FULL'].includes(result.classLabel));
+  it('derives no consciousness class or level from the composite (FCS P1/P4, v3.1.1)', () => {
+    const result = acm.assess() as unknown as Record<string, unknown>;
+    assert.ok(!('classLabel' in result));
+    assert.ok(!('decisionClass' in result));
+    const text = JSON.stringify(result);
+    for (const label of ['ABSENT', 'MINIMAL', 'PARTIAL', 'MODERATE', 'HIGH', 'FULL']) {
+      assert.ok(!text.includes(`"${label}"`), `label ${label} still emitted`);
+    }
+    assert.match(String(result.aggregationStatus), /Not a degree of consciousness/);
   });
 
   it('score is bounded [0, 1]', () => {
@@ -447,10 +452,10 @@ describe('EthicsMonitor', () => {
   });
 
   it('detects firing rate anomalies', () => {
-    state.set('eth.fr', 3);
+    state.set('eth.fr', 3);   // far above the DANDI 001603 reference range → critical
     const report = monitor.assess();
     assert.ok(report.alerts.some(a => a.metric === 'firing_rate'));
-    state.set('eth.fr', 28);
+    state.set('eth.fr', 0.4);
   });
 
   it('detects ATP/ADP anomalies', () => {
@@ -471,9 +476,23 @@ describe('EthicsMonitor', () => {
     for (let i = 0; i < 100; i++) monitor.simulateDrift();
     const s = state.snapshot.eth;
     assert.ok(s.viab >= 70 && s.viab <= 100);
-    assert.ok(s.fr >= 5 && s.fr <= 60);
+    assert.ok(s.fr >= 0.02 && s.fr <= 3);   // median per-unit rate, DANDI 001603 scale (v3.1.1)
     assert.ok(s.atp >= 1.5 && s.atp <= 5);
     assert.ok(s.ca >= 20 && s.ca <= 300);
+  });
+
+  it('real DANDI 001603 organoid rates are NORMAL, not DISTRESS (v3.1.1 recalibration)', () => {
+    // Median per-unit rates of the eight organoids confronted in empirical/ (E1, E2).
+    for (const fr of [0.508, 0.623, 0.618, 0.569, 0.145, 0.252, 0.144, 0.353]) {
+      state.set('eth.fr', fr);
+      const r = monitor.assess();
+      assert.ok(!r.alerts.some((x) => x.metric === 'firing_rate'), `${fr} Hz flagged`);
+    }
+    state.set('eth.fr', 1.0);
+    assert.ok(monitor.assess().alerts.some((x) => x.metric === 'firing_rate' && x.severity === 'warning'));
+    state.set('eth.fr', 28);   // the pre-3.1.1 "normal" value
+    assert.ok(monitor.assess().alerts.some((x) => x.metric === 'firing_rate' && x.severity === 'critical'));
+    state.set('eth.fr', 0.4);
   });
 
   it('maintains history with data source', () => {

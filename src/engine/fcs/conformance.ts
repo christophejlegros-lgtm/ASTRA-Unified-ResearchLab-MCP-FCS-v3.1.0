@@ -11,13 +11,20 @@
  * a per-pair verdict with its provenance — which is strictly more informative
  * than a number and cannot be ranked against another substrate's.
  *
- * WHAT MAKES THIS MORE THAN A TABLE. ASTRA's IRB welfare biomarkers are already
- * observations of FCS neurochemical classes: extracellular calcium is class 1
- * as mobile charge, the ATP/ADP ratio is class 7, population firing rate is the
- * generator of class 3, and viability stands proxy for class 2b. The audit binds
- * those live channels to the taxonomy, so a drifting biomarker becomes a
- * statement about which pair has left its operating range — not merely an
- * ethics flag.
+ * WHAT MAKES THIS MORE THAN A TABLE. Some of ASTRA's IRB welfare biomarkers are
+ * observations of FCS neurochemical classes: the ATP/ADP ratio is class 7, the
+ * median per-unit firing rate is the generator signature of class 3, and
+ * viability stands proxy for class 2b. The audit binds those live channels to
+ * the taxonomy, so a drifting biomarker becomes a statement about which pair
+ * has left its operating range — not merely an ethics flag.
+ *
+ * CALCIUM (corrected in v3.1.1). ASTRA's `eth.ca` is INTRACELLULAR free Ca²⁺ in
+ * nM (ethics.ts) — the second messenger, which document IV §2 and synthesis
+ * S-1.6 place outside class 1. Up to v3.1.0 it was bound to class 1 as
+ * "extracellular Ca²⁺ at the MEA bath", an error of category (and of scale:
+ * bath Ca²⁺ is of the order of 1–2 mM, not 10–100 nM). Class 1 now reads only
+ * an extracellular calcium channel in mM, which ASTRA does not have unless a
+ * caller supplies one; `eth.ca` is reported and bound to no pair.
  *
  * © 2026 Christophe Jean Legros — Geneva · Assistance Multi IA
  */
@@ -57,9 +64,17 @@ export interface PairConformance {
  * field yields `undetermined`, never a default standing in for a measurement.
  */
 export interface BiomarkerInputs {
-  /** Extracellular calcium, nM — ASTRA `eth.ca`. */
+  /**
+   * INTRACELLULAR free calcium, nM — ASTRA `eth.ca`. A second-messenger
+   * quantity: reported by the audit, bound to NO species–function pair.
+   */
   calciumNm?: number;
-  /** Population firing rate, Hz — ASTRA `eth.fr`. */
+  /**
+   * EXTRACELLULAR calcium at the bath, mM — the mobile-charge reading class 1
+   * requires. ASTRA has no such channel; supplied only by an external caller.
+   */
+  extracellularCalciumMm?: number;
+  /** Median per-unit spontaneous firing rate, Hz — ASTRA `eth.fr`. */
   firingRateHz?: number;
   /** ATP/ADP ratio — ASTRA `eth.atp`. */
   atpAdpRatio?: number;
@@ -84,13 +99,16 @@ type Binding = {
  */
 const ORGANOID_BINDINGS: Record<string, Binding> = {
   '1': {
-    channel: 'eth.ca (extracellular calcium, nM)',
+    channel: 'extracellular Ca²⁺ at the bath, mM (external input; ASTRA has no such channel)',
     basisEn:
-      'Ca²⁺ concentration read at the MEA bath. Class 1 is the ion AS MOBILE CHARGE; the same species as ' +
-      'intracellular second messenger belongs to signalling cascades, not to the carrier (document IV §2).',
-    read: (b) => b.calciumNm === undefined
-      ? withheld('Calcium channel not reporting.')
-      : tagged(b.calciumNm, 'access', 'measured', 'Extracellular Ca²⁺, nM, at the MEA bath.'),
+      'Class 1 is the ion AS MOBILE CHARGE, read extracellularly in mM. ASTRA\'s eth.ca is intracellular free ' +
+      'Ca²⁺ in nM — the second messenger, which belongs to signalling cascades and not to the carrier ' +
+      '(document IV §2; synthesis S-1.6) — and is therefore NOT bound here.',
+    read: (b) => b.extracellularCalciumMm === undefined
+      ? withheld(
+          'No extracellular calcium channel. ASTRA\'s eth.ca is intracellular free Ca²⁺ (nM), a second-messenger ' +
+          'quantity outside class 1; reading it as mobile charge would be the category error document IV §2 forbids.')
+      : tagged(b.extracellularCalciumMm, 'access', 'measured', 'Extracellular Ca²⁺, mM, at the bath (externally supplied).'),
   },
   '2b': {
     channel: 'eth.viab (culture viability, %)',
@@ -103,14 +121,14 @@ const ORGANOID_BINDINGS: Record<string, Binding> = {
       : tagged(b.viabilityPct, 'access', 'derived', 'Culture viability, %, as a permissive-role proxy for Na⁺/K⁺-ATPase.'),
   },
   '3': {
-    channel: 'eth.fr (population firing rate, Hz)',
+    channel: 'eth.fr (median per-unit spontaneous firing rate, Hz)',
     basisEn:
-      'Population firing rate is the generator signature: glutamatergic and GABAergic currents command the ' +
+      'The firing rate is the generator signature: glutamatergic and GABAergic currents command the ' +
       'dominant component of the measured field. The transmitters are not assayed; their generator ROLE is ' +
-      'inferred from the discharge they drive.',
+      'inferred from the discharge they drive. Reference interval: DANDI 001603, 0.14–0.63 Hz (ethics.ts).',
     read: (b) => b.firingRateHz === undefined
       ? withheld('Firing-rate channel not reporting.')
-      : tagged(b.firingRateHz, 'access', 'derived', 'Population firing rate, Hz, as the class-3 generator signature.'),
+      : tagged(b.firingRateHz, 'access', 'derived', 'Median per-unit firing rate, Hz, as the class-3 generator signature.'),
   },
   '7': {
     channel: 'eth.atp (ATP/ADP ratio)',
@@ -278,6 +296,12 @@ export function auditSubstrate(
     notesEn.push(
       'Permissive-role channels are reporting while no constitutive pair is realised. Prohibition 5 blocks ' +
       'reading a constitutive role off any failure these channels register.',
+    );
+  }
+  if (substrate === 'organoid-mea' && bio.calciumNm !== undefined) {
+    notesEn.push(
+      `Intracellular free Ca²⁺ (eth.ca = ${bio.calciumNm} nM) is reported but bound to no pair: as second ` +
+      'messenger it is excluded from class 1 (document IV §2; synthesis S-1.6), and it is not a carrier quantity.',
     );
   }
   if (substrate === 'human-wearable') {

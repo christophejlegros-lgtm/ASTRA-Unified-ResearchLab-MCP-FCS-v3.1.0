@@ -1,10 +1,11 @@
 /**
- * ASTRA × FCS — Neurochemical taxonomy (document IV, v1.2)
+ * ASTRA × FCS — Neurochemical taxonomy (document IV, v1.3)
  * ═════════════════════════════════════════════════════════
  * Thirteen molecular classes, seventeen species–function pairs, five causal
  * roles, three declared ordinal sub-criteria. Faithful transcription of
  * « L'implémentation neurochimique du fonctionnalisme contraint par le
- * substrat », Assistance Multi IA · Genève · IV · v1.2 · 19·09·2026.
+ * substrat », Assistance Multi IA · Genève · IV · v1.2 · 19·09·2026 — the
+ * table is unchanged in v1.3 (06·10·2026), which declares the τ ordinalisation.
  *
  * ⚠ WHAT THIS FILE IS NOT
  * The table below carries NO aggregate score and none may be derived from it.

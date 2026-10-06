@@ -2,7 +2,16 @@
  * ASTRA ACM — Artificial Consciousness Module
  * © 2026 Christophe Jean Legros — Geneva
  *
- * Composite consciousness metric: ACM = α·Φ̃ + β·GW̃ + γ·PAD̃
+ * Composite engineering index: ACM = α·Φ̃ + β·GW̃ + γ·PAD̃
+ *
+ * ⚠ v3.1.1 — NO CONSCIOUSNESS SCALE. Versions ≤ 3.1.0 binned the composite
+ * into six labels ABSENT / MINIMAL / PARTIAL / MODERATE / HIGH / FULL. That
+ * scale quantified a degree of consciousness (FCS prohibition 1) by binning a
+ * weighted sum of heterogeneous proxies (prohibition 4). It is withdrawn: no
+ * class, label or level is computed. The composite survives only as a
+ * declared engineering index of the simulation, with conventional weights and
+ * no common scale between its three terms; it orders nothing about experience
+ * and must not be compared across systems.
  *
  * ⚠ IMPORTANT: The metrics computed here are computational PROXIES
  * inspired by the following frameworks, NOT faithful implementations:
@@ -37,20 +46,18 @@ export interface ACMResult {
     broadcastProxy:   { value: number; weight: number; basis: string };
     arousalProxy:     { value: number; weight: number; basis: string };
   };
-  decisionClass: number;
-  classLabel: string;
   confidence: number;
   totalCycles: number;
   formula: string;
+  /** Declared status of `compositeScore` — carried in every payload. */
+  aggregationStatus: string;
 }
 
-export type ConsciousnessLevel =
-  | 'ABSENT'       // class 0
-  | 'MINIMAL'      // class 1
-  | 'PARTIAL'      // class 2
-  | 'MODERATE'     // class 3
-  | 'HIGH'         // class 4
-  | 'FULL';        // class 5
+/** Status line attached to every composite, so the caveat travels with the number. */
+export const ACM_AGGREGATION_STATUS =
+  'Engineering index of the simulation: a conventionally weighted sum of three heterogeneous proxies ' +
+  'lacking a common scale. Not a degree of consciousness (FCS prohibition 1), not admissible as a ranking ' +
+  'across systems (prohibition 4); no class or label is derived from it.';
 
 // ── Default Weights ───────────────────────────────────────────────
 
@@ -149,7 +156,6 @@ export class ACMModule {
     const arousal = this.computeArousalProxy();
 
     const score = w.alpha * integration + w.beta * broadcast + w.gamma * arousal;
-    const cls = this.classify(score);
     const confidence = this.computeConfidence(integration, broadcast, arousal);
 
     // Update state store
@@ -157,7 +163,6 @@ export class ACMModule {
     state.set('acm.broadcastProxy', +broadcast.toFixed(4));
     state.set('acm.arousalProxy', +arousal.toFixed(4));
     state.set('acm.compositeScore', +score.toFixed(4));
-    state.set('acm.decisionClass', cls);
     state.set('acm.confidence', +confidence.toFixed(3));
     state.set('acm.cycles', this.cycles);
 
@@ -180,30 +185,11 @@ export class ACMModule {
           basis: 'Spike rate + bio coupling + energy (Arousal only, Pleasure/Dominance omitted)',
         },
       },
-      decisionClass: cls,
-      classLabel: this.classLabel(cls),
       confidence: +(confidence * 100).toFixed(1),
       totalCycles: this.cycles,
       formula: `${w.alpha}×Φ̃ + ${w.beta}×GW̃ + ${w.gamma}×PAD̃ = ${score.toFixed(4)}`,
+      aggregationStatus: ACM_AGGREGATION_STATUS,
     };
-  }
-
-  // ── Classification ──────────────────────────────────────────────
-
-  private classify(score: number): number {
-    if (score < 0.1) return 0;
-    if (score < 0.25) return 1;
-    if (score < 0.4) return 2;
-    if (score < 0.6) return 3;
-    if (score < 0.8) return 4;
-    return 5;
-  }
-
-  classLabel(cls: number): ConsciousnessLevel {
-    const labels: ConsciousnessLevel[] = [
-      'ABSENT', 'MINIMAL', 'PARTIAL', 'MODERATE', 'HIGH', 'FULL',
-    ];
-    return labels[Math.min(cls, labels.length - 1)];
   }
 
   // ── Confidence ──────────────────────────────────────────────────
@@ -254,7 +240,6 @@ const _acmAdapter = {
       gw: r.components.broadcastProxy.value,
       pad: r.components.arousalProxy.value,
       score: r.compositeScore,
-      class: r.decisionClass,
       confidence: r.confidence,
       cycles: r.totalCycles,
     };

@@ -3,7 +3,7 @@
 <!--
   ASTRA — Console FCS · FCS console
   Fonctionnalisme contraint par le substrat (doc I v1.5), complément métaphysique
-  (doc II v1.4), implémentation neurochimique (doc IV v1.2), synthèse S-1.5.
+  (doc II v1.4), implémentation neurochimique (doc IV v1.3), synthèse S-1.6.
   © Genève 2026 Christophe Jean Legros · Assistance Multi IA
 
   La stratification n'est PAS codée en dur : la page recalcule l'ordre partiel par
@@ -232,8 +232,8 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
 <header>
   <div class="brand">
     <b>ASTRA · FCS</b>
-    <span class="fr">Fonctionnalisme contraint par le substrat · v3.0.1</span>
-    <span class="en">Substrate-constrained functionalism · v3.0.1</span>
+    <span class="fr">Fonctionnalisme contraint par le substrat · v3.1.1</span>
+    <span class="en">Substrate-constrained functionalism · v3.1.1</span>
   </div>
   <div class="hspace"></div>
   <div class="ctl">
@@ -442,8 +442,10 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
   </div>
 
   <div class="card tight" style="border-color:rgba(192,132,252,.35)">
-    <p class="note fr"><b style="color:var(--s-nor)">Sur l'ordinalisation de τ.</b> Le document&nbsp;IV publie τ comme une <em>plage</em> et énonce ce que le critère sert à décider, sans en donner le découpage numérique. La réduction employée ici — borne inférieure de la plage, coupée à 10⁻¹&nbsp;s, la fenêtre de l'épisode que le document nomme, puis à 10⁰&nbsp;s — est une reconstruction déclarée. Elle n'est pas ajustée à la réponse : elle reproduit exactement les huit strates publiées, ce que la vérification ci-dessus contrôle à chaque chargement. Modifier les coupes modifie l'ordre, et c'est la raison de les déclarer.</p>
-    <p class="note en"><b style="color:var(--s-nor)">On the ordinalisation of τ.</b> Document&nbsp;IV publishes τ as a <em>range</em> and states what the criterion decides, without giving its numerical cuts. The reduction used here — the range's lower bound, cut at 10⁻¹&nbsp;s, the episode window the document names, then at 10⁰&nbsp;s — is a declared reconstruction. It is not fitted to the answer: it reproduces all eight published strata exactly, which the verification above checks on every load. Changing the cuts changes the order, and that is why they are declared.</p>
+    <p class="note fr"><b style="color:var(--s-nor)">Sur l'ordinalisation de τ.</b> Le document&nbsp;IV publie τ comme une <em>plage</em>. La réduction employée ici — borne inférieure de la plage, coupée à 10⁻¹&nbsp;s, la fenêtre de l'épisode que le document nomme, puis à 10⁰&nbsp;s — a été reconstruite comme celle qui reproduit les huit strates publiées ; le document&nbsp;IV la déclare depuis sa version&nbsp;1.3 (section&nbsp;2). L'accord, que la vérification ci-dessus contrôle à chaque chargement, vérifie la transcription ; il ne valide pas les coupes — l'en conclure serait l'inférence que proscrit l'interdiction&nbsp;3. Aucune des neuf réductions voisines (borne supérieure, point médian, exposant brut, coupes décalées) ne reproduit les strates : le choix porte du poids, et c'est la raison de le déclarer.</p>
+    <p class="note fr"><b style="color:var(--s-nor)">Ce que l'indice de strate ne dit pas.</b> Les strates présentent l'ordre partiel ; elles n'ordonnent pas deux couples de strates différentes. Sur les 121 paires que les strates séparent, 28 ne sont ordonnées par aucune dominance (ainsi le milieu extracellulaire, strate&nbsp;3, et les neuromodulateurs, strate&nbsp;4). L'indice dépend aussi des couples présents : retirer les ions fait remonter les seize autres d'une strate. L'objet de référence est la relation de dominance (93 paires ordonnées sur 136), que l'outil <code>fcs_stratify</code> rend avec son diagramme de Hasse.</p>
+    <p class="note en"><b style="color:var(--s-nor)">On the ordinalisation of τ.</b> Document&nbsp;IV publishes τ as a <em>range</em>. The reduction used here — the range's lower bound, cut at 10⁻¹&nbsp;s, the episode window the document names, then at 10⁰&nbsp;s — was reconstructed as the one that reproduces the eight published strata; document&nbsp;IV declares it since version&nbsp;1.3 (section&nbsp;2). The agreement, which the verification above checks on every load, checks the transcription; it does not validate the cuts — inferring that would be the move prohibition&nbsp;3 forbids. None of nine neighbouring reductions (upper bound, midpoint, raw exponent, shifted cuts) reproduces the strata: the choice is load-bearing, which is why it is declared.</p>
+    <p class="note en"><b style="color:var(--s-nor)">What a stratum index does not say.</b> The strata present the partial order; they do not order two pairs in different strata. Of the 121 pairs the strata separate, 28 are ordered by no dominance (e.g. the extracellular medium, stratum&nbsp;3, and the neuromodulators, stratum&nbsp;4). The index also depends on which pairs are present: removing the ions moves the sixteen others up one stratum. The object of reference is the dominance relation (93 ordered pairs out of 136), which the <code>fcs_stratify</code> tool returns with its Hasse diagram.</p>
   </div>
 </section>
 
@@ -580,8 +582,9 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
   <div class="card tight">
     <h3><span class="fr">Biomarqueurs</span><span class="en">Biomarkers</span></h3>
     <div class="ctl">
-      <label class="mono" style="font-size:.66rem;color:var(--dim)">Ca²⁺ nM <input class="ep bio" id="bio-ca" type="number" value="65" min="0" max="1000" style="width:5.5rem"></label>
-      <label class="mono" style="font-size:.66rem;color:var(--dim)">fr Hz <input class="ep bio" id="bio-fr" type="number" value="28" min="0" max="200" style="width:5.5rem"></label>
+      <label class="mono" style="font-size:.66rem;color:var(--dim)"><span class="fr">Ca²⁺ intracell. nM</span><span class="en">Ca²⁺ intracell. nM</span> <input class="ep bio" id="bio-ca" type="number" value="65" min="0" max="1000" style="width:5.5rem"></label>
+      <label class="mono" style="font-size:.66rem;color:var(--dim)"><span class="fr">Ca²⁺ extracell. mM</span><span class="en">Ca²⁺ extracell. mM</span> <input class="ep bio" id="bio-cae" type="number" value="" step="0.1" min="0" max="20" placeholder="—" style="width:5.5rem"></label>
+      <label class="mono" style="font-size:.66rem;color:var(--dim)"><span class="fr">fr Hz (médiane/unité)</span><span class="en">fr Hz (median/unit)</span> <input class="ep bio" id="bio-fr" type="number" value="0.4" step="0.01" min="0" max="10" style="width:5.5rem"></label>
       <label class="mono" style="font-size:.66rem;color:var(--dim)">ATP/ADP <input class="ep bio" id="bio-atp" type="number" value="3.5" step="0.1" min="0" max="10" style="width:5.5rem"></label>
       <label class="mono" style="font-size:.66rem;color:var(--dim)">viab % <input class="ep bio" id="bio-viab" type="number" value="95" min="0" max="100" style="width:5.5rem"></label>
       <button id="btn-pull"><span class="fr">tirer du serveur</span><span class="en">pull from server</span></button>
@@ -589,6 +592,8 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
     </div>
     <p class="note fr" style="margin-top:.55rem">Vider un canal ne met pas la valeur à zéro : le couple correspondant passe à <span class="withheld">retenu</span>. Une mesure absente n'est pas une mesure nulle.</p>
     <p class="note en" style="margin-top:.55rem">Clearing a channel does not zero the value: the corresponding pair goes to <span class="withheld">withheld</span>. An absent measurement is not a null measurement.</p>
+    <p class="note fr" style="margin-top:.4rem"><b>Calcium (v3.1.1).</b> Le canal <code>eth.ca</code> d'ASTRA est le Ca²⁺ libre <em>intracellulaire</em>, en nM : un second messager, que le document&nbsp;IV §2 et la synthèse S-1.6 placent hors de la classe&nbsp;1. Il est affiché, mais lié à aucun couple. La classe&nbsp;1 (charge mobile) ne lit qu'un Ca²⁺ <em>extracellulaire</em> en mM, qu'ASTRA ne mesure pas : faute de valeur, le couple reste <span class="withheld">retenu</span>. La fréquence de décharge est la médiane par unité, rapportée à l'intervalle de référence DANDI&nbsp;001603 (0,14–0,63&nbsp;Hz).</p>
+    <p class="note en" style="margin-top:.4rem"><b>Calcium (v3.1.1).</b> ASTRA's <code>eth.ca</code> channel is <em>intracellular</em> free Ca²⁺, in nM: a second messenger, which document&nbsp;IV §2 and synthesis S-1.6 place outside class&nbsp;1. It is shown but bound to no pair. Class&nbsp;1 (mobile charge) reads only an <em>extracellular</em> Ca²⁺ value in mM, which ASTRA does not measure: without one, the pair stays <span class="withheld">withheld</span>. The firing rate is the median per unit, referenced to the DANDI&nbsp;001603 interval (0.14–0.63&nbsp;Hz).</p>
   </div>
 
   <div id="conformance"></div>
@@ -706,8 +711,8 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
     <p class="mono" style="font-size:.76rem;line-height:2;color:var(--dim)">
       I · <span class="fr">Fonctionnalisme contraint par le substrat</span><span class="en">Substrate-constrained functionalism</span> — v1.5<br>
       II · <span class="fr">Complément métaphysique</span><span class="en">Metaphysical complement</span> — v1.4<br>
-      IV · <span class="fr">L'implémentation neurochimique</span><span class="en">The neurochemical implementation</span> — v1.2 · 19·09·2026<br>
-      S · <span class="fr">Synthèse illustrée</span><span class="en">Illustrated synthesis</span> — S-1.5 · 19·09·2026
+      IV · <span class="fr">L'implémentation neurochimique</span><span class="en">The neurochemical implementation</span> — v1.3 · 06·10·2026<br>
+      S · <span class="fr">Synthèse illustrée</span><span class="en">Illustrated synthesis</span> — S-1.6 · 06·10·2026
     </p>
   </div>
 </section>
@@ -716,7 +721,7 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
 
 <footer>
   © Genève 2026 Christophe Jean Legros · Assistance Multi IA · Assistant-Multi-IA@proton.me<br>
-  ASTRA Unified Research Lab MCP v3.0.1 — <span class="fr">couche FCS · outils</span><span class="en">FCS layer · tools</span> <span style="color:var(--n1)">fcs_*</span>
+  ASTRA Unified Research Lab MCP v3.1.1 — <span class="fr">couche FCS · outils</span><span class="en">FCS layer · tools</span> <span style="color:var(--n1)">fcs_*</span>
 </footer>
 
 <script>
@@ -729,7 +734,7 @@ footer{border-top:1px solid var(--rule);margin-top:2.5rem;padding:1.2rem 1.4rem;
 const EOW = '(?![A-Za-zÀ-ÖØ-öø-ÿ])';
 
 /* ═══════════════════════════════════════════════════════════════
-   1. TAXONOMIE — document IV v1.2, §3
+   1. TAXONOMIE — document IV v1.3, §3 (table inchangée depuis la v1.2)
    Transcription fidèle. Les valeurs sont des jugements déclarés,
    révisables ; chacune peut être contestée isolément.
    ═══════════════════════════════════════════════════════════════ */
@@ -1196,15 +1201,15 @@ const SUBSTRATES = [
 ];
 
 const ORG_BINDINGS = {
-  '1'  : {ch:'eth.ca',   prov:'measured', unit:'nM',
-          fr:'Ca²⁺ extracellulaire au bain de la MEA. La classe 1 est l’ion <em>comme charge mobile</em> ; la même espèce comme second messager relève des cascades de signalisation, non du porteur.',
-          en:'Extracellular Ca²⁺ at the MEA bath. Class 1 is the ion <em>as mobile charge</em>; the same species as second messenger belongs to signalling cascades, not to the carrier.'},
+  '1'  : {ch:'Ca²⁺ extracell. (entrée externe)', prov:'measured', unit:'mM',
+          fr:'Ca²⁺ extracellulaire au bain, en mM — seule lecture de l’ion <em>comme charge mobile</em>. Le canal <code>eth.ca</code> d’ASTRA (Ca²⁺ intracellulaire, nM) est le second messager, qui relève des cascades de signalisation et non du porteur : il n’est pas lié ici.',
+          en:'Extracellular Ca²⁺ at the bath, in mM — the only reading of the ion <em>as mobile charge</em>. ASTRA’s <code>eth.ca</code> channel (intracellular Ca²⁺, nM) is the second messenger, which belongs to signalling cascades and not to the carrier: it is not bound here.'},
   '2b' : {ch:'eth.viab', prov:'derived', unit:'%',
           fr:'La viabilité tient lieu de <em>proxy</em> de la pompe : son effondrement est la défaillance non sélective que prédit le rôle permissif. La pompe elle-même n’est pas dosée.',
           en:'Viability stands <em>proxy</em> for the pump: its collapse is the non-selective failure the permissive role predicts. The pump itself is not assayed.'},
   '3'  : {ch:'eth.fr',   prov:'derived', unit:'Hz',
-          fr:'La fréquence de décharge de population est la signature du générateur : les courants glutamatergiques et GABAergiques commandent la composante dominante du champ mesuré. Les transmetteurs ne sont pas dosés ; leur <em>rôle</em> est inféré de la décharge qu’ils entraînent.',
-          en:'Population firing rate is the generator signature: glutamatergic and GABAergic currents command the dominant component of the measured field. The transmitters are not assayed; their <em>role</em> is inferred from the discharge they drive.'},
+          fr:'La fréquence de décharge médiane par unité est la signature du générateur : les courants glutamatergiques et GABAergiques commandent la composante dominante du champ mesuré. Les transmetteurs ne sont pas dosés ; leur <em>rôle</em> est inféré de la décharge qu’ils entraînent.',
+          en:'The median per-unit firing rate is the generator signature: glutamatergic and GABAergic currents command the dominant component of the measured field. The transmitters are not assayed; their <em>role</em> is inferred from the discharge they drive.'},
   '7'  : {ch:'eth.atp',  prov:'measured', unit:'',
           fr:'Indice direct des métabolites énergétiques de la classe 7. Permissif : sa chute prédit une défaillance non sélective, et l’interdiction 5 interdit d’y lire un rôle constitutif.',
           en:'Direct index of the class-7 energy metabolites. Permissive: its fall predicts non-selective failure, and prohibition 5 blocks reading a constitutive role off that failure.'},
@@ -1777,12 +1782,12 @@ function runEcphory(){
 /* ── Conformité ── */
 function readBio(){
   const g = id => { const v = $(id).value.trim(); return v === '' ? undefined : Number(v); };
-  return {ca:g('#bio-ca'), fr:g('#bio-fr'), atp:g('#bio-atp'), viab:g('#bio-viab')};
+  return {ca:g('#bio-ca'), cae:g('#bio-cae'), fr:g('#bio-fr'), atp:g('#bio-atp'), viab:g('#bio-viab')};
 }
 
 function renderConformance(){
   const bio = readBio(), en = document.documentElement.classList.contains('lang-en');
-  const chVal = {'1':bio.ca, '2b':bio.viab, '3':bio.fr, '7':bio.atp};
+  const chVal = {'1':bio.cae, '2b':bio.viab, '3':bio.fr, '7':bio.atp};   // v3.1.1: class 1 reads extracellular Ca²⁺ only
 
   $('#conformance').innerHTML = SUBSTRATES.map(sub => {
     const tally = {realised:0, simulated:0, absent:0, undetermined:0};
@@ -2004,7 +2009,7 @@ async function pullBiomarkers(){
     const st = await MCP.call('get_system_status');
     const e = st?.ethics?.biomarkers ?? st?.ethics ?? {};
     const set = (id, v) => { if (typeof v === 'number') $(id).value = v; };
-    set('#bio-ca', e.calcium ?? e.ca); set('#bio-fr', e.firingRate ?? e.fr);
+    set('#bio-ca', e.calciumNm ?? e.calcium ?? e.ca); set('#bio-fr', e.firingRateHz ?? e.firingRate ?? e.fr);
     set('#bio-atp', e.atpAdp ?? e.atp); set('#bio-viab', e.viability ?? e.viab);
     renderConformance();
   } catch(e){ /* hors ligne : la table embarquée reste la source */ }

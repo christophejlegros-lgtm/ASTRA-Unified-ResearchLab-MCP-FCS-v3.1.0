@@ -37,10 +37,83 @@
 
 Production-grade [Model Context Protocol](https://modelcontextprotocol.io) server exposing the ASTRA bio-hybrid neuromorphic simulation pipeline to AI assistants. Built with the official `@modelcontextprotocol/sdk`, it integrates a layered SNN LIF+STDP engine, consciousness proxy assessment, bio-computing platform telemetry, and an IRB ethics monitor — all queryable as MCP tools, resources, and prompts from **Claude Desktop**, **Cursor**, **VS Code**, and any MCP-compatible client.
 
-## 🆕 v3.1.0 — FCS layer: substrate-constrained functionalism
+## 🆕 v3.1.1 — Coherence corrections (audit of 6 October 2026)
 
-Implements the values of the FCS series (documents I v1.5, II v1.4, IV v1.2,
-synthesis S-1.5) inside ASTRA as `fcs_*` tools — **not** as a scoring module.
+Five corrections from a critical audit of v3.1.0. Each one fixes a point where the
+server contradicted its own FCS series or its own empirical results.
+
+1. **Calcium is no longer bound to class 1.** ASTRA's `eth.ca` is *intracellular* free
+   Ca²⁺ in nM (`ethics.ts`): the second messenger, which document IV §2 and synthesis
+   S-1.6 place outside class 1. v3.1.0 bound it to class 1 as "extracellular Ca²⁺ at
+   the MEA bath", a category error, and one of scale too: bath Ca²⁺ is about 1–2 mM.
+   Class 1 now reads only an extracellular value in mM (`extracellularCalciumMm`,
+   supplied by the caller), and is `withheld()` otherwise. `eth.ca` is reported and
+   bound to no pair.
+2. **No consciousness scale anywhere; every payload is screened.** `get_acm_score`
+   binned its weighted composite into six labels, ABSENT…FULL. That is a quantified
+   degree of consciousness (prohibition 1) built from an aggregate (prohibition 4).
+   The labels and `decisionClass` are removed. The composite remains, but only as a
+   declared engineering index (`aggregationStatus`).
+   - **New `src/lint-guard.ts`.** Every tool and resource payload passes `lintClaim`
+     and `lintFcs`; v3.1.0 screened only 20 of 70 tools. `fcs_lint` is exempt because
+     it echoes the text it screens.
+   - **Linter fixes.** The P3 rule's ungrouped alternation fired on any sentence
+     containing "mécanisme". A year in parentheses no longer exempts an assertion, and
+     naming a prohibition no longer exempts a sentence that asserts a value. Common
+     paraphrases are now caught ("consciousness level 0.7", "71 % conscious", "Phi
+     equals phenomenal experience"). An ordinal unit label no longer makes two ranks
+     commensurable under P4.
+3. **The τ ordinalisation is published, and the strata are put in their place.**
+   - **Document IV v1.3.** `FCS v1.5/Implementation Neurochimique FCS v1.3.html` §2
+     declares the reduction that links the τ ranges to the strata. Matching the
+     published strata checks the transcription; it does not validate the cuts. Of ten
+     plausible reductions, only the declared one reproduces the strata
+     (`ordinalisationSensitivity()`).
+   - **The dominance relation itself.** `fcs_stratify` now returns 93 comparable pairs
+     out of 136 and the Hasse diagram.
+   - **What strata do not order.** 28 of the 121 cross-stratum pairs are incomparable.
+   - **Context dependence.** Removing the ion shifts the other sixteen pairs, so a
+     stratum is a label of the peeling, not a property of the pair. `fcs_compare` says
+     so when two incomparable pairs sit in different strata.
+4. **Welfare thresholds recalibrated on DANDI 001603.** The firing-rate range was
+   15–45 Hz, with ≤ 5 Hz critical. Every real organoid confronted in E1/E2 (median
+   per-unit rate 0.14–0.62 Hz) would have been reported in distress. `eth.fr` is now
+   the median per-unit rate:
+   - normal 0.14–0.63 Hz (observed range of the eight organoids);
+   - stress within a factor 2 of that range;
+   - distress beyond.
+
+   This is a descriptive reference interval from one dataset, not a validated welfare
+   criterion.
+5. **Aligned on synthesis S-1.6, counts and licensing corrected.**
+   - **S-1.6 belt extension.** `src/engine/fcs/optogenetics.ts` encodes:
+     - what each intervention dissociates, with a check that no intervention both
+       breaks the generative dependence and satisfies the P5 clause;
+     - the astrocytic anchoring, decomposed onto pairs already in the table;
+     - a candidate astrocytic pair that is equivalent to class 8 and adds no
+       distinction.
+
+     `fcs_report` and `astra://fcs/framework` carry this extension.
+   - **Counts.** References updated to IV v1.3 and S-1.6.
+   - **Licensing.** `package.json` declares `MIT AND LicenseRef-TCAI-NonCommercial`
+     and ships `THIRD_PARTY_NOTICES.md` and the upstream licence. `CITATION.cff` points
+     to the licensing statement instead of declaring MIT for the whole.
+   - **Dependencies.** `npm audit fix` brings vulnerabilities back to 0.
+
+Test suite 331 → **354 tests · 66 suites** (`tests/lint-guard.test.ts` added; FCS
+69 → 86). Not addressed here and still open:
+- the organoid realisation verdicts for myelin (11) and genomic hormones (9a), which
+  the culture protocol should decide;
+- the read-only annotation of `get_acm_score`, whose `assess()` updates `acm.*`;
+- the M2 asymmetry in `withdrawal.ts`.
+
+---
+
+## v3.1.0 — FCS layer: substrate-constrained functionalism
+
+Implements the values of the FCS series (documents I v1.5, II v1.4, IV v1.3 — table
+as in v1.2 —, synthesis S-1.6) inside ASTRA as `fcs_*` tools — **not** as a scoring
+module.
 
 - **The stratification is computed, never hard-coded.** The seventeen
   species–function pairs are ordered by **Pareto dominance** over three ordinal
@@ -53,9 +126,9 @@ synthesis S-1.5) inside ASTRA as `fcs_*` tools — **not** as a scoring module.
   (prohibition 4, after Okasha 2011). `mayAggregate()` refuses such a
   combination at runtime; `refuseAggregate()` returns a withheld scalar carrying
   its reason instead of a number.
-- **The IRB welfare biomarkers are bound to the taxonomy.** Extracellular Ca²⁺
-  is class 1 as mobile charge, ATP/ADP is class 7, firing rate is the class-3
-  generator signature, viability stands proxy for class 2b. A drifting biomarker
+- **The IRB welfare biomarkers are bound to the taxonomy.** ATP/ADP is class 7,
+  firing rate is the class-3 generator signature, viability stands proxy for class
+  2b. (v3.1.0 also bound `eth.ca` to class 1; corrected in v3.1.1 — see above.) A drifting biomarker
   becomes a statement about which pair has left its operating range. A silent
   channel yields `withheld()`, never zero.
 - **The silicon SNN realises no constitutive pair**, and the audit says so:
@@ -64,6 +137,7 @@ synthesis S-1.5) inside ASTRA as `fcs_*` tools — **not** as a scoring module.
 - **Two linters gate every payload** — `lintClaim` (Block's access/phenomenal
   distinction) and `lintFcs` (the five prohibitions), the latter distinguishing
   use from mention so that stating a prohibition or citing a title does not fire it.
+  (In v3.1.0, the FCS, Orch OR and OVOMIND families only; server-wide since v3.1.1.)
 - MCP surface: 62 → **70 tools** (`fcs_*` ×8); resources 11 → 15, prompts 8 → 10.
   Test suite 241 → **317 tests** (69 in `tests/fcs.test.ts`, 7 in `tests/annotations.test.ts`).
 - **MCP tool annotations** on all 70 tools (title + read-only / destructive / idempotent /
@@ -317,7 +391,7 @@ live API when configured). `tests/annotations.test.ts` asserts that the table an
 | `snn_step` | Advance SNN Simulation | ✏️ additive |
 | `snn_reset` | Reset SNN Engine | ⚠️ destructive · idempotent |
 | `inject_spikes` | Spike Injection | ✏️ additive |
-| `get_acm_score` | Composite Consciousness-Theory Proxy (not a measurement) | 📖 read-only |
+| `get_acm_score` | ACM Proxy Engineering Index (not a measurement) | 📖 read-only |
 | `check_ethics` | IRB Neural Welfare Check | 📖 read-only |
 | `set_parameter` | Modify State Parameter | ⚠️ destructive · idempotent · bounds-checked |
 | `get_platform_status` | Bio-Computing Platforms | 📖 read-only |
@@ -386,6 +460,7 @@ src/
 ├── sse-server.ts         # SSE transport (Express) — exports createSseApp() for tests
 ├── http-server.ts        # Streamable HTTP transport (Express) — exports createHttpApp()
 ├── version.ts            # ASTRA_VERSION — single source of truth, consumed by all transports
+├── lint-guard.ts         # Server-wide claim guard: lintClaim + lintFcs on every tool/resource payload
 ├── tool-annotations.ts   # MCP annotations for all 70 tools (single table, test-enforced)
 ├── bridge-state.ts       # Typed state contract shared by the wm/sensor/tcai/np tool families
 ├── server.ts             # MCP server factory (70 tools + 10 prompts + 15 resources)
@@ -407,8 +482,9 @@ src/
 │   ├── neuroplatform.ts  # FinalSpark NeuroPlatform v2 port + OrganoidMEA simulator
 │   ├── ovomind.ts        # OVOMIND adapter (sim default; live adapter is a declared stub)
 │   ├── simulation.ts     # Background tick loop
-│   ├── fcs/              # FCS: taxonomy, levels, stratification (Pareto), conformance,
-│   │                     #   negative-heuristic linter, withdrawal conditions, references
+│   ├── fcs/              # FCS: taxonomy, levels, stratification (Pareto, dominance relation,
+│   │                     #   sensitivity), conformance, negative-heuristic linter, withdrawal
+│   │                     #   conditions, optogenetics (S-1.6 belt extension), references
 │   └── tcai/             # ACM native port: global-workspace, oscillatory-binding, emotion,
 │                         #   emotional-memory, self-model, second-order, active-inference,
 │                         #   metrics, acm-bridge, orch-or, phenomenal-guard, types
@@ -416,18 +492,20 @@ src/
     ├── logger.ts         # Structured logging (pino → stderr)
     └── rng.ts            # Global seeded PRNG (mulberry32, ASTRA_SEED)
 
-tests/                    # 323 tests · 62 suites
+tests/                    # 354 tests · 66 suites
 ├── astra.test.ts             # Unit: state, bounds, SNN, ACM, ethics, security
 ├── world-model.test.ts       # World Model: encoder, predictor, SIGReg, CEM, surprise
 ├── wm-simulation.test.ts     # WM simulation: buffer, training, planning, lifecycle
 ├── multimodal-sensors.test.ts # Sensors: V-JEPA, A-JEPA, Koniku, fusion, pipeline
 ├── tcai.test.ts              # TCAI/ACM: binding, GNW, memory, emotion, self-model, metrics
 ├── neuroplatform.test.ts     # NeuroPlatform: StimParam, OrganoidMEA, controllers, bridge
+├── neuroplatform-e2.test.ts  # E2 'network-burst' spontaneous model (frozen parameters)
 ├── second-order.test.ts      # Second-order loop: setpoint regulation, production loop
 ├── aif-equivalence.test.ts   # TS↔NumPy active-inference golden equivalence
 ├── integration.test.ts       # Client SDK: tools, resources, prompts, workflow
 ├── transports.test.ts        # HTTP/SSE transport layer: session lifecycle, guards, regressions
-├── fcs.test.ts               # FCS: published strata reproduced, no-aggregation guard, linters
+├── fcs.test.ts               # FCS: strata, dominance relation, sensitivity, calcium binding, linters, S-1.6
+├── lint-guard.test.ts        # Server-wide claim guard: blocking, exemption, every payload screened
 ├── annotations.test.ts       # MCP annotations: table ≡ tools/list, classification invariants
 └── reproducibility.test.ts   # Seeded streams: same seed ⇒ same SNN and encoder outputs
 
@@ -450,7 +528,10 @@ The SNN topology resource (`astra://snn/topology`) dynamically reports the **act
 
 > ⚠ **Methodological disclaimer:** The metrics below are **computational proxies** inspired by the referenced theories. They are **not** faithful implementations. See source code comments for full details.
 
-Composite score: `ACM = α·Φ̃ + β·GW̃ + γ·PAD̃` (default: α=0.40, β=0.35, γ=0.25)
+Composite engineering index: `ACM = α·Φ̃ + β·GW̃ + γ·PAD̃` (default: α=0.40, β=0.35, γ=0.25).
+Conventional weights over three heterogeneous proxies lacking a common scale: **no class,
+level or label is derived from it** (FCS prohibitions 1 and 4; the ABSENT…FULL scale of
+≤ v3.1.0 is withdrawn), and every payload carries this status in `aggregationStatus`.
 
 | Component | Basis | Inspired by | What it actually measures |
 |---|---|---|---|
@@ -467,9 +548,15 @@ IRB compliance level **N3** (100K–1M neurons). Four biomarkers with three-stat
 | Biomarker | Normal | Stress | Critical |
 |---|---|---|---|
 | Cell viability | ≥ 90% | 80–90% | < 80% |
-| Firing rate | 15–45 Hz | outside range | ≤ 5 or ≥ 60 Hz |
+| Firing rate (median per unit) | 0.14–0.63 Hz | 0.07–0.14 or 0.63–1.3 Hz | < 0.07 or > 1.3 Hz |
 | ATP/ADP | ≥ 3.0 | 2.0–3.0 | < 2.0 |
-| Calcium | < 100 nM | 100–200 nM | ≥ 200 nM |
+| Intracellular free Ca²⁺ | < 100 nM | 100–200 nM | ≥ 200 nM |
+
+The firing-rate interval is the observed range of the eight DANDI 001603 organoids
+confronted in `empirical/` (E1, E2), with the factor-2 band of the preregistrations; it
+is a descriptive reference interval from one dataset, not a validated welfare criterion
+(v3.1.1; the former 15–45 Hz range classed every one of those organoids as in distress).
+Intracellular Ca²⁺ is a second messenger: it is bound to no FCS pair.
 
 ### Parameter Bounds
 
@@ -499,6 +586,7 @@ npm run test:transports    # HTTP + SSE transport layer
 npm run test:fcs           # FCS layer
 npm run test:annotations   # MCP tool annotations
 npm run test:repro         # seeded reproducibility
+npm run test:guard         # server-wide claim guard
 
 # Static gates
 npm run build              # tsc strict (Node16 ESM)
@@ -509,7 +597,7 @@ npm run golden:check       # TS↔NumPy active-inference golden (requires python
 npm run inspect
 ```
 
-> **Full suite: 323/323 passing** (229 engine/integration + 12 transport-layer + 69 FCS + 7 annotations + 6 reproducibility), 0 TypeScript errors
+> **Full suite: 354/354 passing** (230 engine/integration + 8 E2 model + 12 transport-layer + 86 FCS + 7 annotations + 6 reproducibility + 5 claim guard), 0 TypeScript errors
 > (strict, Node16 ESM), 0 ESLint errors. Verified on Node 20 and Node 22 in CI.
 
 ## Development

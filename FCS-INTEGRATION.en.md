@@ -1,6 +1,6 @@
 # FCS layer — substrate-constrained functionalism
 
-**ASTRA v3.1.0 · `fcs_*` tools (8) · `astra://fcs/*` resources (4) · prompts (2)**
+**ASTRA v3.1.1 · `fcs_*` tools (8) · `astra://fcs/*` resources (4) · prompts (2)**
 
 Implements, inside ASTRA, the values of the series:
 
@@ -8,8 +8,8 @@ Implements, inside ASTRA, the values of the series:
 |---|---|---|
 | I | Substrate-constrained functionalism | v1.5 |
 | II | Metaphysical complement | v1.4 |
-| IV | The neurochemical implementation | v1.2 · 19·09·2026 |
-| S | Illustrated synthesis | S-1.5 · 19·09·2026 |
+| IV | The neurochemical implementation | v1.3 · 06·10·2026 (table unchanged since v1.2) |
+| S | Illustrated synthesis | S-1.6 · 06·10·2026 |
 
 © Geneva 2026 Christophe Jean Legros · Assistance Multi IA
 
@@ -86,11 +86,12 @@ as a second messenger, belongs to signalling cascades rather than to the carrier
 | **τ** | the longer of two durations — action on the carrier, own physiological variation; decides whether the class can individuate an episode (~100 ms) | `pair.tauLog10` |
 | **ablation** | effect on level-IV signatures, in four ordered degrees | `pair.ablation` |
 
-### The ordinalisation of τ — a declared reconstruction
+### The ordinalisation of τ — declared in document IV v1.3
 
-Document IV publishes τ as a **range** and states what the criterion decides,
-without giving its numerical cuts. The reduction used in
-`EPISODE_WINDOW_ORDINALISATION` is therefore declared, not read off:
+Document IV v1.2 published τ as a **range**, and the strata, without the
+reduction linking them. The reduction used in `EPISODE_WINDOW_ORDINALISATION`
+was reconstructed as the one that reproduces the published strata; **document IV
+v1.3 (§2, 06·10·2026) now declares it**:
 
 ```
 rank 0 — the range reaches 10⁻¹ s or below: the class acts within the episode window
@@ -98,11 +99,15 @@ rank 1 — the range starts above 10⁻¹ s, up to 10⁰ s: it straddles the win
 rank 2 — the range starts above 10⁰ s: it cannot individuate an episode
 ```
 
-It is not fitted to the answer: the first cut is the episode window the document
-itself names, and the reduction **reproduces all eight published strata exactly**
-(document IV §3). `tests/fcs.test.ts` checks this on every run — if a
-transcription error creeps into the table, or the ordinalisation changes, the
-test fails.
+The reduction **reproduces all eight published strata exactly** (document IV §3),
+and `tests/fcs.test.ts` checks it on every run. That agreement is a **consistency
+check of the transcription, not a validation of the cuts**: inferring the
+correctness of a reduction from its fit to the published order would be the move
+prohibition 3 forbids. The choice is load-bearing — of ten plausible reductions
+(`ALTERNATIVE_ORDINALISATIONS`: upper bound, midpoint, raw exponent, shifted or
+fewer cuts), **only the declared one** reproduces the strata; the others displace
+one to fourteen pairs. `ordinalisationSensitivity()` reports this, and
+`fcs_stratify` returns it.
 
 ```ts
 const result = canonicalStratification();
@@ -117,8 +122,8 @@ result.strata.length;       // 8
 |---|---|---|
 | S1 | 1 | the ion as mobile charge |
 | S2 | 2a | channels, ionotropic receptors, connexins |
-| S3 | 2b · 3 · 4 · 11 | four pairs, mutually incomparable |
-| S4 | 5 · 6 · 10a · 12a | four incomparable pairs |
+| S3 | 2b · 3 · 4 · 11 | four pairs; 4 and 11 equivalent, the others incomparable |
+| S4 | 5 · 6 · 10a · 12a | four pairs; 10a and 12a equivalent, the others incomparable |
 | S5 | 9b · 10b | two incomparable pairs |
 | S6 | 7 · 8 | two incomparable pairs |
 | S7 | 9a | hormones, genomic route |
@@ -127,6 +132,26 @@ result.strata.length;       // 8
 Incomparability is a **result**, not a gap: `fcs_compare` reports it explicitly,
 with the reason — separating them would require the aggregation prohibition 4
 refuses.
+
+### What a stratum index does not say (v3.1.1)
+
+The strata **present** the partial order; they are not the order. Two facts are
+computed, not asserted (`stratification.ts` §4, tests in `tests/fcs.test.ts`):
+
+- **Pairs in different strata need not be comparable.** Of the 121 pairs the
+  strata separate, **28** are ordered by no dominance — e.g. the extracellular
+  medium (S3) and the neuromodulators (S4). Reading the index as a rank would
+  restore the total order prohibition 4 removes. `fcs_compare` now says so when
+  two incomparable pairs sit in different strata.
+- **A stratum is context-dependent.** Removing the ion (class 1) moves the sixteen
+  other pairs up one stratum; six removals out of seventeen shift at least one
+  other pair. That is a failure of independence of irrelevant alternatives, the
+  Arrovian condition behind Okasha (2011): the index labels the peeling, it is not
+  a property of the pair.
+
+The object faithful to document IV §2 is the **dominance relation** — 93 ordered
+pairs out of 136 — and its Hasse diagram. `fcs_stratify` returns both
+(`dominance.hasse`, `incomparableAcrossStrata`, `contextDependence`).
 
 ---
 
@@ -144,10 +169,27 @@ This is where the layer stops being a table and becomes an integration:
 
 | ASTRA channel | Pair | Role | Provenance |
 |---|---|---|---|
-| `eth.ca` — extracellular Ca²⁺, nM | **1** — ions | constitutive | measured |
-| `eth.fr` — firing rate, Hz | **3** — transmitter amino acids | generator | derived |
+| *external input* — extracellular Ca²⁺, mM | **1** — ions | constitutive | measured (ASTRA has no such channel) |
+| `eth.ca` — **intracellular** free Ca²⁺, nM | *no pair* — second messenger, outside class 1 | — | reported, unbound |
+| `eth.fr` — median per-unit firing rate, Hz | **3** — transmitter amino acids | generator | derived |
 | `eth.atp` — ATP/ADP ratio | **7** — energy metabolites | permissive | measured |
 | `eth.viab` — viability, % | **2b** — Na⁺/K⁺-ATPase | permissive | derived (proxy) |
+
+**Calcium, corrected in v3.1.1.** Up to v3.1.0, `eth.ca` was bound to class 1 as
+"extracellular Ca²⁺ at the MEA bath". But `ethics.ts` defines it as
+*intracellular* free Ca²⁺ (thresholds 100/200 nM) — the second messenger that
+document IV §2 and synthesis S-1.6 explicitly place outside class 1 — and bath
+Ca²⁺ is of the order of millimoles, not nanomoles. The only channel attached to a
+constitutive pair rested on the category error the series forbids. Class 1 now
+reads only an extracellular value in mM, supplied by the caller
+(`extracellularCalciumMm`); without one it is `withheld()`.
+
+**Firing rate, recalibrated in v3.1.1.** `eth.fr` is the median per-unit
+spontaneous rate (statistic S1 of `empirical/confront.py`), referenced to the
+eight DANDI 001603 organoids analysed in E1/E2: normal 0.14–0.63 Hz, stress
+within a factor 2, distress beyond. The former 15–45 Hz range would have reported
+every one of those real organoids in distress. It is a descriptive reference
+interval from one dataset, not a validated welfare criterion.
 
 A drifting biomarker thereby becomes the statement "this pair has left its
 operating range", not merely an ethics flag. A silent channel does **not return
@@ -211,12 +253,30 @@ it.
 | P4 | aggregate scores over ordinal criteria lacking a common scale | `mayAggregate()` · `refuseAggregate()` |
 | P5 | inferring a constitutive role from a permissive ablation effect | `mayInferConstitutive()` |
 
-Every payload the layer emits passes **two** linters — `lintClaim` (Block's
-distinction) and `lintFcs` (the five prohibitions). A payload failing either is
-returned as an error, not emitted with a caveat in a footer.
+Every payload passes **two** linters — `lintClaim` (Block's distinction) and
+`lintFcs` (the five prohibitions). A payload failing either is returned as an
+error, not emitted with a caveat in a footer. **Since v3.1.1 this holds for the
+whole server**, not only the FCS layer: `src/lint-guard.ts` wraps every tool and
+resource (`fcs_lint` alone is exempt, since it echoes the screened string). Up to
+v3.1.0, fifty of the seventy tools — `get_acm_score` among them, which then
+binned its composite into ABSENT…FULL "consciousness levels" — were unscreened.
+That scale is withdrawn.
 
-**Use and mention.** The linter works by field unit then by sentence, and exempts
-units that *mention* a prohibition or that are bibliographic — "No quantifying a
+**What the linters are.** Pattern heuristics: they catch the formulations they
+encode (v3.1.1 adds the common paraphrases — "consciousness level 0.7",
+"Consciousness: 0.7", "71 % conscious", "Phi equals phenomenal experience"), not
+every possible wording. They gate ASTRA's own output; they do not prove that no
+payload can carry a forbidden claim.
+
+**Use and mention.** Bibliographic units are exempt at unit level — a DOI, or a
+unit that opens on an author list ("Casali, A. G., … (2013).") — so a title stays
+with its marker; a year in parentheses at the end of an assertion no longer
+exempts it (v3.1.1). Mentions of a prohibition are exempt per **sentence**, and
+not when the sentence also asserts a value ("under prohibition 4, the degree of
+consciousness is 0.71" makes the move). Fixed in v3.1.1: the P3 rule's final
+alternation was ungrouped and fired on any sentence containing "mécanisme".
+The rationale is unchanged: segments that *mention* a prohibition or that are
+bibliographic are not claims — "No quantifying a
 degree of proto-consciousness" states the move in order to forbid it, and Casali
 et al. (2013) is titled *A theoretically based index of consciousness* whether or
 not the phrase is welcome. A linter that fires on itself ends up switched off,
@@ -267,8 +327,8 @@ console), negative heuristic (live linter), sources.
 ## 9. Tests
 
 ```bash
-npm run test:fcs     # 69 FCS-layer tests
-npm test             # full suite — 323 tests
+npm run test:fcs     # 86 FCS-layer tests
+npm test             # full suite — 354 tests
 ```
 
 The load-bearing test is `reproduces the eight published strata exactly`. It

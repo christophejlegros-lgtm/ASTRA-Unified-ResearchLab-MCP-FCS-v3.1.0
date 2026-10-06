@@ -1,7 +1,7 @@
 /**
  * ASTRA × FCS — The four-level framework and its mapping onto ASTRA
  * ═════════════════════════════════════════════════════════════════
- * Document I v1.5 · synthesis S-1.5.
+ * Document I v1.5 · synthesis S-1.6.
  *
  *   I   Substrate                    — transmembrane ionic currents, endogenous
  *                                      fields, ephaptic coupling
