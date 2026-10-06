@@ -1,7 +1,8 @@
 cff-version: 1.2.0
 message: >-
-  If you use this software, please cite it as below. Once an archived release
-  has a DOI (e.g. through the Zenodo–GitHub integration), cite that DOI.
+  If you use this software, please cite it as below, with the DOI of the archived
+  release you used (v3.1.1: 10.5281/zenodo.23196960; all versions:
+  10.5281/zenodo.23196959).
 type: software
 title: "ASTRA — Agent-orchestrated Simulation Testbed for Research on Awareness (MCP server, FCS layer)"
 version: 3.1.1
@@ -32,6 +33,11 @@ keywords:
   - consciousness science
   - biocomputing
   - epistemology
-# identifiers:            # add after the first archived release
-#   - type: doi
-#     value: 10.5281/zenodo.XXXXXXX
+doi: 10.5281/zenodo.23196960
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23196960
+    description: "Archived release v3.1.1 (Zenodo, 2026-10-06): cite this DOI for the exact version used."
+  - type: doi
+    value: 10.5281/zenodo.23196959
+    description: "Concept DOI: all versions, always resolving to the latest release."

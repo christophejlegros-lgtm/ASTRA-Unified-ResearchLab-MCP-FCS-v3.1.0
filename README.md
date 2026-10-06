@@ -2,6 +2,8 @@
 
 **Agent-orchestrated Simulation Testbed for Research on Awareness**
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23196959.svg)](https://doi.org/10.5281/zenodo.23196959)
+
 > **Data provenance.** All biological and physiological data produced by this server
 > are **simulated**. No living tissue, organoid, human subject or Koniku hardware is
 > connected: the NeuroPlatform bridge is instantiated in simulate mode, the OVOMIND live
@@ -658,8 +660,10 @@ MIT — © 2026 Christophe Jean Legros, Geneva — applies to everything in this
 > subject to its non-commercial terms. Details, file list and status:
 > [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
-**Citing and reviewing.** Cite via [`CITATION.cff`](CITATION.cff) (an archived DOI will be
-added with the first Zenodo release). External review is invited through
+**Citing and reviewing.** Releases are archived on Zenodo. Cite the version you used:
+v3.1.1 is [doi:10.5281/zenodo.23196960](https://doi.org/10.5281/zenodo.23196960); the
+concept DOI [doi:10.5281/zenodo.23196959](https://doi.org/10.5281/zenodo.23196959) covers
+all versions and resolves to the latest. Metadata: [`CITATION.cff`](CITATION.cff). External review is invited through
 [`REVIEW.md`](REVIEW.md); substrate-level predictions are drafted for preregistration in
 [`PREREGISTRATION.md`](PREREGISTRATION.md).
 
