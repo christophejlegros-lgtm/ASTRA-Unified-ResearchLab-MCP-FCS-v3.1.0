@@ -2,7 +2,7 @@
   "title": "ASTRA — Agent-orchestrated Simulation Testbed for Research on Awareness (MCP server, FCS layer)",
   "upload_type": "software",
   "version": "3.1.1",
-  "license": "MIT",
+  "license": "mit",
   "creators": [
     {
       "name": "Legros, Christophe Jean",
