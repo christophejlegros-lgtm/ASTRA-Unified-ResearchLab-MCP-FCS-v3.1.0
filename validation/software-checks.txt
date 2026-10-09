@@ -1,0 +1,604 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 validate:software
+> npm run check:version && npm run check:evidence && npm run build && npm run lint && npm run golden:check && npm test && npm run test:empirical && npm run test:e3
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 check:version
+> node scripts/check-version.mjs
+
+Consistent local candidate version: 3.2.0-rc.1
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 check:evidence
+> python3 scripts/check-evidence.py
+
+{
+  "historical_integrity": true,
+  "files": 20,
+  "changed": [],
+  "remote_chronology_authenticated": false
+}
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 build
+> tsc
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 lint
+> eslint src/
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 golden:check
+> python3 python/second_order/gen_golden.py --check
+
+golden OK (TS↔NumPy reference current): /workspace/scratch/70b6f03f9a36/consolidation/ASTRA-FCS-v3.2.0-rc.1/tests/fixtures/aif_golden.json
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 test
+> cross-env ASTRA_LOG_LEVEL=silent TSX_TSCONFIG_PATH=tsconfig.test.json node --import tsx --test tests/fcs.test.ts tests/astra.test.ts tests/world-model.test.ts tests/wm-simulation.test.ts tests/multimodal-sensors.test.ts tests/tcai.test.ts tests/neuroplatform.test.ts tests/neuroplatform-e2.test.ts tests/second-order.test.ts tests/aif-equivalence.test.ts tests/integration.test.ts tests/transports.test.ts tests/annotations.test.ts tests/reproducibility.test.ts tests/lint-guard.test.ts tests/proxy-validity.test.ts
+
+▶ ActiveInference · TS ↔ NumPy equivalence (golden)
+  ✔ TypeScript core reproduces the NumPy reference within 1e-9 (3.059405ms)
+✔ ActiveInference · TS ↔ NumPy equivalence (golden) (4.30445ms)
+▶ MCP tool annotations
+  ✔ the table and tools/list name exactly the same 70 tools (1.370084ms)
+  ✔ every tool carries a title and all four boolean hints (0.392098ms)
+  ✔ a read-only tool is never destructive (0.197315ms)
+  ✔ resets, overwrites and stimulation are flagged destructive (0.243685ms)
+  ✔ stateful computations are not advertised as read-only (0.236384ms)
+  ✔ the FCS layer is read-only and closed-world (1.469772ms)
+  ✔ only the OVOMIND reads are open-world; NeuroPlatform (simulate mode) is not (0.245588ms)
+✔ MCP tool annotations (104.762205ms)
+▶ StateStore
+  ✔ initialises with default values (1.209622ms)
+  ✔ initialises ACM with proxy names (0.247831ms)
+  ✔ get() retrieves nested values via dot-notation (0.239429ms)
+  ✔ set() updates values and returns true (0.272048ms)
+  ✔ set() rejects invalid namespaces (0.213891ms)
+  ✔ emits change events (0.531747ms)
+  ✔ tick() increments counter (0.519919ms)
+  ✔ reset() restores defaults (0.242173ms)
+  ✔ merge() applies bulk updates (0.693539ms)
+✔ StateStore (6.595573ms)
+▶ StateStore Bounds Validation
+  ✔ setChecked() accepts values within bounds (3.145464ms)
+  ✔ setChecked() rejects values below minimum (0.164256ms)
+  ✔ setChecked() rejects values above maximum (0.183385ms)
+  ✔ setChecked() rejects Infinity (0.133821ms)
+  ✔ setChecked() rejects NaN (0.102553ms)
+  ✔ setChecked() rejects invalid paths (0.121502ms)
+  ✔ getBounds() returns bounds for known paths (3.804913ms)
+  ✔ getBounds() returns undefined for unknown paths (0.152939ms)
+  ✔ boundedPaths lists all registered paths (0.148563ms)
+✔ StateStore Bounds Validation (9.216372ms)
+▶ SNNEngine
+  ✔ initialises with correct total neuron count (0.397155ms)
+  ✔ reports layer configuration (0.248813ms)
+  ✔ creates sparse synaptic connections (0.472779ms)
+  ✔ supports custom layer configurations (0.265838ms)
+  ✔ step() returns spike count (0.419789ms)
+  ✔ run() accumulates spikes across steps (8.786807ms)
+  ✔ voltages initialise to vRest (1.303523ms)
+  ✔ init() resets state completely (5.076843ms)
+  ✔ injectSpikes() modifies targeted neurons (1.070103ms)
+  ✔ injectSpikes() respects output layer boundaries (0.381792ms)
+  ✔ stats() includes layer information (0.32005ms)
+  ✔ weightStats() returns valid statistics (6.464788ms)
+  ✔ layerRates() returns per-layer firing rates (4.146014ms)
+  ✔ STDP modifies weights over time (6.221003ms)
+✔ SNNEngine (41.36246ms)
+▶ ACMModule
+  ✔ assess() returns correctly named proxy fields (1.430805ms)
+  ✔ components include methodological basis (0.495562ms)
+  ✔ formula uses proxy notation (tilde) (1.436944ms)
+  ✔ derives no consciousness class or level from the composite (FCS P1/P4, v3.1.1) (0.55402ms)
+  ✔ score is bounded [0, 1] (0.385067ms)
+  ✔ supports custom weights (1.711645ms)
+  ✔ increments cycle count (0.377155ms)
+✔ ACMModule (7.183695ms)
+▶ EthicsMonitor
+  ✔ assess() returns NORMAL for default values (0.957444ms)
+  ✔ reports data source from state mode (0.203836ms)
+  ✔ irbRequired is false in sim mode (0.158958ms)
+  ✔ irbRequired is true in live mode (0.136905ms)
+  ✔ detects STRESS state (0.150205ms)
+  ✔ detects DISTRESS state (0.150565ms)
+  ✔ provides mode-aware recommendations (0.155173ms)
+  ✔ detects firing rate anomalies (0.205107ms)
+  ✔ detects ATP/ADP anomalies (0.185148ms)
+  ✔ detects calcium anomalies (0.710084ms)
+  ✔ simulateDrift() keeps values in plausible range (0.850704ms)
+  ✔ real DANDI 001603 organoid rates are NORMAL, not DISTRESS (v3.1.1 recalibration) (1.910954ms)
+  ✔ maintains history with data source (0.159168ms)
+✔ EthicsMonitor (6.604908ms)
+▶ Simulation
+  ✔ starts and stops cleanly (0.335122ms)
+  ✔ does not start twice (1.513418ms)
+  ✔ advances tick counter (150.084952ms)
+✔ Simulation (152.56566ms)
+▶ Security
+  ✔ rejects prototype pollution paths (0.14701ms)
+  ✔ rejects constructor paths (4.519173ms)
+  ✔ bounds validation prevents extreme values (0.203155ms)
+✔ Security (5.118911ms)
+▶ FCS taxonomy — document IV v1.3 (table as in v1.2)
+  ✔ carries seventeen species–function pairs (0.675402ms)
+  ✔ covers thirteen molecular classes (0.217496ms)
+  ✔ uses all five causal roles (0.336685ms)
+  ✔ pair ids are unique and resolvable (0.738587ms)
+  ✔ every τ range is well-ordered and every d is in [0,4] (0.586158ms)
+  ✔ only the mobile charge sits at distance 0 (0.697365ms)
+  ✔ the two constitutive pairs are the charge and the valve (0.136315ms)
+  ✔ the four permissive pairs are 2b, 7, 12b, 13 (4.11691ms)
+  ✔ function, not substance: class 2 and class 9 each split into two roles (0.359419ms)
+  ✔ τ formatting renders superscript exponents (0.553239ms)
+✔ FCS taxonomy — document IV v1.3 (table as in v1.2) (10.052916ms)
+▶ FCS stratification — Pareto dominance, document IV §2
+  ✔ reproduces the eight published strata exactly (1.254099ms)
+  ✔ stratum 1 is the ion alone; stratum 2 the valve alone (0.535582ms)
+  ✔ stratum 8 holds the two distant permissive cofactor pairs (0.112549ms)
+  ✔ every pair lands in exactly one stratum (0.083546ms)
+  ✔ dominance is irreflexive and asymmetric (0.401642ms)
+  ✔ no pair is dominated by another in its own stratum (0.142303ms)
+  ✔ the τ ordinalisation is what it declares: three ranks, cut at the episode window (1.530323ms)
+  ✔ a different τ ordinalisation gives a different order — the choice is load-bearing (0.631025ms)
+  ✔ comparison reports incomparability rather than inventing an order (0.710715ms)
+  ✔ the declared τ reduction is the only one of the ten alternatives that reproduces the strata (v3.1.1) (10.777411ms)
+  ✔ dominance relation: 93 of 136 unordered pairs are comparable; the Hasse diagram generates it (v3.1.1) (3.914225ms)
+  ✔ strata do not order 28 of the 121 cross-stratum pairs (v3.1.1) (0.68712ms)
+  ✔ a stratum is context-dependent: removing the ion shifts the 16 others (v3.1.1) (2.786526ms)
+  ✔ 12b and 13 are equivalent on all three sub-criteria (0.200451ms)
+  ✔ unknown pair id throws rather than defaulting (0.321722ms)
+✔ FCS stratification — Pareto dominance, document IV §2 (24.768657ms)
+▶ FCS four-level framework
+  ✔ four levels, each with a non-empty ASTRA gap (0.128523ms)
+  ✔ the field hypothesis is belt, not core (0.074441ms)
+  ✔ only the organoid realises level I (0.363495ms)
+  ✔ silicon simulates levels III and IV without realising level I (0.118287ms)
+  ✔ level coverage names a substrate for every level (0.286209ms)
+✔ FCS four-level framework (1.170394ms)
+▶ FCS substrate conformance audit
+  ✔ silicon realises no constitutive pair (0.736153ms)
+  ✔ silicon has no field to observe (0.125297ms)
+  ✔ the organoid realises both constitutive pairs and carries the carrier (0.872658ms)
+  ✔ live biomarkers bind to the taxonomy by class (0.254812ms)
+  ✔ intracellular Ca²⁺ (eth.ca, nM) binds to NO pair — second messenger, outside class 1 (v3.1.1) (3.787385ms)
+  ✔ class 1 reads only an extracellular calcium value in mM (0.243615ms)
+  ✔ a missing biomarker withholds rather than defaulting (0.123014ms)
+  ✔ every human-wearable verdict is undetermined, by design (0.441201ms)
+  ✔ no audit carries an aggregate score (0.319889ms)
+  ✔ tallies sum to the seventeen pairs on every substrate (0.162032ms)
+✔ FCS substrate conformance audit (7.45376ms)
+▶ FCS negative heuristic — five prohibitions, enforced
+  ✔ all five prohibitions are defined with a rationale (2.20867ms)
+  ✔ P4 refuses ordinal criteria lacking a common scale (5.132081ms)
+  ✔ P4 admits commensurable quantities (1.419878ms)
+  ✔ P4 treats a single criterion as no aggregation (0.130315ms)
+  ✔ refuseAggregate returns a withheld scalar carrying its reason (0.172598ms)
+  ✔ P5 blocks a constitutive inference from non-selective failure (0.155974ms)
+  ✔ P5 blocks a fat-handed intervention whatever the ablation degree (0.093069ms)
+  ✔ P5 admits a selective intervention on a non-permissive effect, with the conjunction clause (0.10059ms)
+  ✔ P1 catches a quantified degree of proto-consciousness, in both languages (5.573482ms)
+  ✔ P2 catches identifying an observable with phenomenality (0.218597ms)
+  ✔ accented tokens are caught despite JavaScript's ASCII \b (0.227421ms)
+  ✔ a French sentence crossing two prohibitions reports both (0.150796ms)
+  ✔ P4 catches an aggregate score named in prose (0.196375ms)
+  ✔ ordinary FCS prose passes the linter (0.165979ms)
+  ✔ the whole consolidated report passes its own linters (20.711608ms)
+  ✔ use/mention: stating a prohibition is exempt, making the move is not (0.443485ms)
+  ✔ use/mention: a bibliographic title is exempt (0.130335ms)
+  ✔ P3 fires on a fit-to-mechanism inference, not on any sentence containing "mécanisme" (v3.1.1) (0.212749ms)
+  ✔ a year in parentheses no longer exempts an assertion (v3.1.1) (0.155894ms)
+  ✔ naming a prohibition does not exempt a sentence that asserts a value (v3.1.1) (0.125017ms)
+  ✔ common paraphrases of a quantified degree are caught (v3.1.1) (0.157295ms)
+  ✔ P4: an ordinal unit label does not make two ranks commensurable (v3.1.1) (0.221712ms)
+  ✔ the exemption does not neuter the linter inside a mixed payload (0.238157ms)
+✔ FCS negative heuristic — five prohibitions, enforced (39.743499ms)
+▶ FCS withdrawal conditions and revision order
+  ✔ unset outcomes stay undetermined and never collapse to negative (0.74732ms)
+  ✔ a negative level-I strand withdraws the field hypothesis and M2 with it (0.210466ms)
+  ✔ a negative osmotic strand also withdraws the field hypothesis (0.147471ms)
+  ✔ the declared asymmetry holds: a favourable human outcome does not corroborate M2 (0.142203ms)
+  ✔ the outcome against the bias does withdraw M2 (0.12672ms)
+  ✔ covariation alone leaves the bridge undetermined; the local intervention decides (0.170756ms)
+  ✔ interoceptive dimensionality effects withdraw the kinaesthetic thesis, framework surviving (0.342153ms)
+  ✔ M1 carries a dated clause and is withdrawn once it elapses unmet (0.175312ms)
+  ✔ an experiment ranked by M1 keeps it standing past its deadline (0.158257ms)
+  ✔ the revision order is declared, ordered and complete (1.100729ms)
+  ✔ the core carries no withdrawal condition (0.209433ms)
+  ✔ next-to-revise skips withdrawn theses (0.222914ms)
+✔ FCS withdrawal conditions and revision order (6.041864ms)
+▶ FCS bibliography
+  ✔ every reference carries a DOI verified by the source documents (0.34025ms)
+  ✔ reference keys are unique (0.10704ms)
+  ✔ the strands load-bearing citations are present (0.12714ms)
+✔ FCS bibliography (0.715793ms)
+▶ FCS consolidated report
+  ✔ reports the taxonomy shape and the reproduction verdict (1.792676ms)
+  ✔ carries the provenance of the source documents (4.416779ms)
+✔ FCS consolidated report (6.409264ms)
+▶ FCS belt extension — synthesis S-1.6 (v3.1.1)
+  ✔ the two columns do not overlap: nothing both breaks the dependence and satisfies the P5 clause (0.169925ms)
+  ✔ optogenetic gain of function satisfies the P5 clause; loss of function does not (0.059589ms)
+  ✔ every astrocytic function decomposes onto a pair already in the table (0.391567ms)
+  ✔ a candidate astrocytic pair would be equivalent to class 8 and add no distinction (0.149944ms)
+  ✔ the published table is unchanged by the extension (0.096845ms)
+  ✔ the consolidated report carries the S-1.6 extension and passes its own linter (2.232346ms)
+✔ FCS belt extension — synthesis S-1.6 (v3.1.1) (3.340015ms)
+▶ FCS provenance and order controls (consolidation)
+  ✔ synthetic input is never promoted to measured by the taxonomy (1.572216ms)
+  ✔ removing a third option changes peeling labels but not pairwise dominance (10.484001ms)
+✔ FCS provenance and order controls (consolidation) (12.266523ms)
+▶ Tool Discovery
+  ✔ lists all 12 tools (13.327412ms)
+  ✔ tools have titles and annotations (10.484281ms)
+  ✔ expected tool names are present (8.033529ms)
+✔ Tool Discovery (104.802635ms)
+▶ Tool Execution
+  ✔ get_system_status returns structured data (19.700443ms)
+  ✔ get_metrics returns all subsystems (1.906967ms)
+  ✔ get_metrics ACM uses proxy names (1.284355ms)
+  ✔ get_snn_state includes layer info (1.061951ms)
+  ✔ snn_step advances simulation (103.897503ms)
+  ✔ snn_reset reinitialises engine with layers (1.277234ms)
+  ✔ inject_spikes targets correct layer (1.265346ms)
+  ✔ get_acm_score uses proxy naming (1.129653ms)
+  ✔ check_ethics includes data source and disclaimer (0.615282ms)
+✔ Tool Execution (185.656675ms)
+▶ set_parameter Bounds Validation
+  ✔ accepts valid values within bounds (1.690553ms)
+  ✔ rejects values below minimum (0.722202ms)
+  ✔ rejects values above maximum (1.243544ms)
+  ✔ rejects invalid paths (0.568613ms)
+  ✔ returns bounds info with successful updates (0.56715ms)
+✔ set_parameter Bounds Validation (55.976225ms)
+▶ Resources
+  ✔ lists 5 resources (15.45829ms)
+  ✔ reads metrics-realtime (1.557133ms)
+  ✔ snn-topology reflects actual engine config (0.950064ms)
+  ✔ acm-state uses proxy names (0.691606ms)
+  ✔ ethics-welfare includes data source (0.430215ms)
+  ✔ snapshot-current includes all state (1.413168ms)
+✔ Resources (64.719917ms)
+▶ Prompts
+  ✔ lists 3 prompts (1.527189ms)
+  ✔ system-health-report prompt mentions proxy disclaimer (0.94788ms)
+  ✔ snn-experiment prompt warns about proxy interpretation (0.402203ms)
+  ✔ ethics-stress-test prompt notes sim mode (0.6339ms)
+✔ Prompts (57.049683ms)
+▶ Multi-Step Workflow
+  ✔ full experiment: reset → inject → run → assess (3509.896956ms)
+  ✔ ethics stress test: NORMAL → STRESS → DISTRESS → recovery (2.140117ms)
+✔ Multi-Step Workflow (3554.715505ms)
+▶ Consolidated provenance through MCP
+  ✔ mode=live cannot create measured biomarkers or a field channel (5.438099ms)
+  ✔ caller overrides remain reported while state channels remain simulated (2.770232ms)
+✔ Consolidated provenance through MCP (50.482752ms)
+▶ Server-wide claim guard — mechanism
+  ✔ blocks a forbidden claim emitted by an arbitrary tool (23.661078ms)
+  ✔ fcs_lint is exempt: echoing the screened string is its function (0.230355ms)
+✔ Server-wide claim guard — mechanism (25.052824ms)
+▶ Server-wide claim guard — ASTRA payloads as shipped
+  ✔ every tool callable without arguments clears the guard (674.779526ms)
+  ✔ every resource clears the guard (20.593501ms)
+  ✔ get_acm_score carries no consciousness class or label (1.090044ms)
+✔ Server-wide claim guard — ASTRA payloads as shipped (767.845151ms)
+▶ VJEPAEncoder
+  ✔ should encode a single frame to correct latent dim (27.970766ms)
+  ✔ should encode video with temporal aggregation (22.608761ms)
+  ✔ should produce different embeddings for different images (8.650538ms)
+  ✔ should produce finite values (4.652952ms)
+✔ VJEPAEncoder (65.534123ms)
+▶ AJEPAEncoder
+  ✔ should encode audio to correct latent dim (155.486653ms)
+  ✔ should compute mel spectrogram (48.655594ms)
+  ✔ should update EMA target encoder (331.695906ms)
+  ✔ should produce finite values for various durations (472.361257ms)
+✔ AJEPAEncoder (1008.748353ms)
+▶ KonikuOlfactoryEncoder
+  ✔ should encode olfactory reading to correct latent dim (4.228117ms)
+  ✔ should scale confidence with neuron viability (2.00889ms)
+  ✔ should handle inactive device gracefully (1.466838ms)
+  ✔ should integrate temporal history (2.181299ms)
+  ✔ should differentiate different compound profiles (1.877223ms)
+✔ KonikuOlfactoryEncoder (12.096307ms)
+▶ CrossModalFusion
+  ✔ should fuse multiple modalities (1.106579ms)
+  ✔ should assign zero weight to missing modalities (2.14888ms)
+  ✔ should compute cross-modal coherence (0.80712ms)
+✔ CrossModalFusion (4.212533ms)
+▶ MultimodalSensorPipeline
+  ✔ should process all three modalities (38.279405ms)
+  ✔ should handle partial modalities (86.377703ms)
+  ✔ should track statistics (94.870611ms)
+  ✔ should reset cleanly (9.768729ms)
+✔ MultimodalSensorPipeline (229.53778ms)
+▶ OrganoidMEA · network-burst model (E2 candidate)
+  ✔ default spontaneous model is still 'poisson' with an unchanged RNG stream (5.934914ms)
+  ✔ E2 parameters are frozen and are the configured defaults (1.016032ms)
+  ✔ partial parameter override keeps the other calibrated values (0.569934ms)
+  ✔ deterministic for a fixed seed; different seeds differ (56.969738ms)
+  ✔ counts match the spike log and 1.5 ms refractoriness holds (11.368577ms)
+  ✔ reset() reproduces the same realisation (9.147609ms)
+  ✔ statistical signatures: organoid-like rate, irregular ISIs, network bursts, positive synchrony (124.727733ms)
+  ✔ stimulation still works in network-burst mode (3.872444ms)
+✔ OrganoidMEA · network-burst model (E2 candidate) (215.555141ms)
+▶ NeuroPlatform · StimParam
+  ✔ defaults match the documented StimParam reference table (0.804316ms)
+  ✔ charge balance: equal D·A products are balanced, unequal are not (0.26655ms)
+  ✔ charge accessors compute D·A in pC (0.223345ms)
+  ✔ validate flags out-of-range index, trigger_key and excessive amplitude (0.275453ms)
+  ✔ display_attributes returns a complete, JSON-safe record (0.21406ms)
+✔ NeuroPlatform · StimParam (3.92389ms)
+▶ NeuroPlatform · OrganoidMEA simulator
+  ✔ initialises 128 electrodes with plausible viability (0.63454ms)
+  ✔ advance() accumulates spontaneous spikes and is deterministic for a fixed seed (7.366249ms)
+  ✔ stimulate() with higher charge yields more evoked spikes on average (1.864884ms)
+  ✔ heavy unbalanced stimulation degrades local viability (0.681792ms)
+  ✔ spike-count / spike-event DB queries are consistent (5.002877ms)
+  ✔ getRawSpike returns ~3 ms window with a biphasic deflection (0.359528ms)
+✔ NeuroPlatform · OrganoidMEA simulator (16.464062ms)
+▶ NeuroPlatform · Controllers
+  ✔ IntanController stages, uploads and resolves params per trigger; refractory replace by index (1.01427ms)
+  ✔ IntanController.countSpike returns a 128-length closed-loop vector (1.358806ms)
+  ✔ IntanController throws after close until reopen (7.931766ms)
+  ✔ TriggerController requires a 16-length array and fires bound params (0.842743ms)
+  ✔ DatabaseController query objects round-trip through the store (4.948136ms)
+  ✔ CameraController returns a capture id and image descriptor (0.25386ms)
+✔ NeuroPlatform · Controllers (16.729961ms)
+▶ NeuroPlatform · ASTRA Bridge
+  ✔ closedLoopRead produces bounded coupling signals and a 128-length spike drive (0.535763ms)
+  ✔ triggers recorded in the DB are queryable and de-duplicated (0.27375ms)
+  ✔ activeElectrodes reflects the most recent closed-loop window (0.678046ms)
+  ✔ status() reports controller + organoid telemetry (0.255162ms)
+  ✔ reset restores deterministic baseline (0.670635ms)
+✔ NeuroPlatform · ASTRA Bridge (2.810682ms)
+▶ Proxy validity controls
+  ✔ missing, constant and genuinely zero covariance are distinct (1.380459ms)
+  ✔ common input creates a high ratio without recurrent interactions (0.241171ms)
+  ✔ permutation, translation and common scaling preserve the ratio (0.290805ms)
+  ✔ independent coordinate rescaling changes the ratio and must be declared (0.228603ms)
+  ✔ invalid configuration or changing dimensions cannot silently produce NaN (0.54025ms)
+  ✔ observed two-state cycle gives one bit conditional on 2/8 visited rows (0.591857ms)
+  ✔ empty transitions remain missing while observed constant transitions give zero (0.34009ms)
+  ✔ fresh and reset public telemetry never imputes a measured zero (13.209035ms)
+✔ Proxy validity controls (18.475176ms)
+▶ Seeded random streams
+  ✔ reports a 32-bit seed and its source (1.247339ms)
+  ✔ produces values in [0, 1) (2.417312ms)
+  ✔ same seed ⇒ identical SNN connectivity and dynamics (23.325205ms)
+  ✔ different seed ⇒ different SNN connectivity (5.135425ms)
+  ✔ same seed ⇒ identical fused sensory embedding (134.157359ms)
+  ✔ different seed ⇒ different (randomly initialised) encoder weights (99.24784ms)
+✔ Seeded random streams (267.65768ms)
+▶ SecondOrder · MetaLearningModule
+  ✔ cold start returns zero velocity below 10 samples (0.860349ms)
+  ✔ stabilising RPE ⇒ positive learning velocity (converging) (0.617195ms)
+  ✔ variance spike ⇒ novelty flag (0.30006ms)
+  ✔ values stay finite and velocity bounded (0.583143ms)
+✔ SecondOrder · MetaLearningModule (3.620185ms)
+▶ SecondOrder · CapabilityModel
+  ✔ EMA converges toward repeated realized valence (0.34032ms)
+  ✔ undefined action maps to idle bucket (0.185809ms)
+  ✔ snapshot is sorted by expected valence desc (0.423465ms)
+✔ SecondOrder · CapabilityModel (1.186047ms)
+▶ SecondOrder · RNDCuriosity (two-layer)
+  ✔ intrinsic reward is bounded in [0,1] (5.799971ms)
+  ✔ repeated exposure to the same input reduces prediction error (learning) (9.179357ms)
+  ✔ deterministic under fixed seed (0.477115ms)
+✔ SecondOrder · RNDCuriosity (two-layer) (16.454828ms)
+▶ SecondOrder · MetaconsciousnessEvaluator
+  ✔ composite is bounded and monotone in calibration (0.256694ms)
+✔ SecondOrder · MetaconsciousnessEvaluator (0.351997ms)
+▶ SecondOrder · DevelopmentTracker
+  ✔ high stable composite + meta ⇒ advanced stage (0.394572ms)
+  ✔ low composite stays nascent/reactive (0.18048ms)
+✔ SecondOrder · DevelopmentTracker (0.677656ms)
+▶ SecondOrder · ConvergenceMonitor (free-energy + task quality)
+  ✔ requires sustained satisfaction over patience before halting (0.284617ms)
+  ✔ low task quality alone blocks satisfaction even when free energy has settled (0.09991ms)
+  ✔ high |ΔF| (not yet settled) blocks satisfaction even with good task quality (0.08668ms)
+  ✔ reasons reflect each threshold independently (0.116885ms)
+  ✔ satisfactionScore is bounded in [0,1] and rises with quality (0.108743ms)
+  ✔ configure() updates thresholds and resets sustained count (0.123375ms)
+✔ SecondOrder · ConvergenceMonitor (free-energy + task quality) (1.006498ms)
+▶ SecondOrder · ActiveInferenceCore (real free energy)
+  ✔ variational free energy decreases as the model learns a stable observation (3.688918ms)
+  ✔ EFE decomposition and pragmatic value track preferences (0.343945ms)
+  ✔ observation clamped to valid range; outputs finite (0.214531ms)
+✔ SecondOrder · ActiveInferenceCore (real free energy) (4.41101ms)
+▶ SecondOrder · ADVERSARIAL halting (stationarity ≠ satisfaction)
+  ✔ GOOD regime (high task feedback) eventually halts as satisfied (29.04063ms)
+  ✔ MEDIOCRE fixed point (constant LOW feedback) is NEVER satisfied despite F settling (97.640531ms)
+  ✔ reset clears AIF and convergence state (2.74928ms)
+✔ SecondOrder · ADVERSARIAL halting (stationarity ≠ satisfaction) (129.616159ms)
+▶ SecondOrder · CLOSED-LOOP on real LIF SNN (v2.9)
+  ✔ AIF observation is grounded in the real SNN substrate (non-trivial, in range) (40.951148ms)
+  ✔ SNN firing rate responds monotonically to injection (real coupling) (14.001051ms)
+  ✔ default controller regulates to an INTERIOR drive (non-degenerate, v2.9) (786.372316ms)
+  ✔ controller tracks the setpoint: higher target ⇒ higher drive (v2.9) (967.784105ms)
+  ✔ production loop OFF by default leaves the shared SNN untouched (no contention, v2.9) (11.06341ms)
+  ✔ production loop ON closes the loop through the shared SNN (read+write, v2.9) (30.598644ms)
+  ✔ open loop freezes the drive; closed loop moves it (7.482413ms)
+✔ SecondOrder · CLOSED-LOOP on real LIF SNN (v2.9) (1858.633137ms)
+▶ ContinuousActuationController · setpoint regulation (v2.9)
+  ✔ regulates to an interior drive that achieves the setpoint (clean world) (0.181552ms)
+  ✔ a higher setpoint yields a higher regulated drive (0.161542ms)
+  ✔ configure changes the target and reset restores neutral state (0.116655ms)
+✔ ContinuousActuationController · setpoint regulation (v2.9) (0.603414ms)
+▶ SecondOrder · threshold calibration on measured ΔF (v2.9)
+  ✔ calibrate sets epsFreeEnergy from the measured ΔF median (0.330755ms)
+  ✔ relative (scale-free) convergence: |ΔF| ≤ rel·F passes even above absolute eps (0.097436ms)
+✔ SecondOrder · threshold calibration on measured ΔF (v2.9) (0.557516ms)
+▶ SecondOrder · TCAIConsciousnessSystem integration
+  ✔ runCycle populates a second-order snapshot (1.016133ms)
+  ✔ repeated identical cycles drive curiosity down (familiarity) (43.947193ms)
+  ✔ reset clears the second-order loop (1.764083ms)
+✔ SecondOrder · TCAIConsciousnessSystem integration (46.882522ms)
+▶ TCAI · Oscillatory Binding (Kuramoto/AKOrN)
+  ✔ order parameter stays in [0,1] and rises under strong uniform coupling (3.732574ms)
+  ✔ bindBids returns gated bids for all registered modules + syncR (0.531216ms)
+✔ TCAI · Oscillatory Binding (Kuramoto/AKOrN) (5.497108ms)
+▶ TCAI · Global Neuronal Workspace
+  ✔ high bid triggers sigmoid ignition and a winner (2.430251ms)
+  ✔ low bids fail to ignite (no conscious access) (0.341421ms)
+  ✔ qualia vector components are bounded (0.172138ms)
+  ✔ unity metrics report stable focus under repeated winner (3.606936ms)
+✔ TCAI · Global Neuronal Workspace (6.976565ms)
+▶ TCAI · Emotional Memory Core
+  ✔ attention gate blocks low-attention storage (0.430916ms)
+  ✔ store + retrieve ranks by similarity, congruence and salience (0.664596ms)
+  ✔ capacity eviction removes lowest-salience records (0.668191ms)
+  ✔ salience-weighted RL batch is deterministic and unique (0.409144ms)
+  ✔ cosineSimilarity sanity (0.520681ms)
+✔ TCAI · Emotional Memory Core (3.081508ms)
+▶ TCAI · Emotional Processing & Reward Shaping
+  ✔ appraisal maps reward/threat into PAD with inertia (0.301512ms)
+  ✔ shaped reward includes emotional and memory terms (0.397976ms)
+✔ TCAI · Emotional Processing & Reward Shaping (0.808202ms)
+▶ TCAI · Self Model & Attention Schema
+  ✔ effort drains energy; stress tracks negative arousal (0.401722ms)
+  ✔ attention schema stability reflects focus persistence (0.122984ms)
+✔ TCAI · Self Model & Attention Schema (0.623044ms)
+▶ TCAI · Consciousness Metrics
+  ✔ GNW metrics accumulate ignition and broadcast availability (0.239699ms)
+  ✔ effective information: deterministic cycle > random walk (0.701892ms)
+  ✔ discretizeContinuous maps range onto [0, n−1] (0.196184ms)
+  ✔ Φ̃-RIIU: correlated latents > independent-ish latents (0.567811ms)
+✔ TCAI · Consciousness Metrics (1.870453ms)
+▶ TCAI · Consciousness System (full cycle)
+  ✔ runCycle wires workspace → emotion → reward → memory → self (53.148447ms)
+  ✔ report() withholds composite and publishes separate estimates with disclaimer (23.988869ms)
+  ✔ reset clears all subsystems (5.847503ms)
+✔ TCAI · Consciousness System (full cycle) (83.235895ms)
+▶ Transport Streamable HTTP
+  ✔ T1 — /health expose statut, version unifiée et transport (25.690018ms)
+  ✔ T2 — préflight CORS OPTIONS → 204 avec en-têtes (5.03135ms)
+  ✔ T3 — cycle de vie complet initialize → tools/list → DELETE (134.457304ms)
+  ✔ T4 — régression corps-parsé : initialize répond sous délai strict (58.958363ms)
+  ✔ T5 — POST non-initialize sans session → 400 JSON-RPC (garde anti-fuite) (5.67857ms)
+  ✔ T6 — GET /mcp sans session → 404 (3.575458ms)
+  ✔ T7 — session supprimée : POST ultérieur rejeté (62.770015ms)
+✔ Transport Streamable HTTP (309.005217ms)
+▶ Transport SSE
+  ✔ T8 — /health expose statut, version unifiée et transport (6.200292ms)
+  ✔ T9 — cycle de vie : endpoint, initialize (202), réponse sur le flux (204.428136ms)
+  ✔ T10 — POST /messages avec session inconnue → 404 (3.654867ms)
+✔ Transport SSE (217.121828ms)
+▶ WMSimulationManager — Tick Processing
+  ✔ should accept ticks without crashing (14.348693ms)
+  ✔ should populate replay buffer from transitions (2.692435ms)
+  ✔ should respect replay buffer capacity (5.579642ms)
+✔ WMSimulationManager — Tick Processing (23.707938ms)
+▶ WMSimulationManager — Training
+  ✔ should auto-train at configured frequency (25.139043ms)
+  ✔ should execute manual trainBatch (7.957094ms)
+  ✔ should execute trainFull over entire buffer (6.277697ms)
+  ✔ should fire onTrainingSummary callback (5.588405ms)
+✔ WMSimulationManager — Training (45.497862ms)
+▶ WMSimulationManager — Surprise Monitoring
+  ✔ should detect surprise alerts for anomalous transitions (2.536311ms)
+  ✔ should not generate alerts when monitoring is disabled (2.067429ms)
+✔ WMSimulationManager — Surprise Monitoring (4.890379ms)
+▶ WMSimulationManager — Planning
+  ✔ should plan toward target firing rates (4.69127ms)
+  ✔ should plan toward target ACM score (3.824441ms)
+  ✔ should return null if no observation available (1.849402ms)
+✔ WMSimulationManager — Planning (10.566905ms)
+▶ WMSimulationManager — Lifecycle
+  ✔ should clear buffer (3.459324ms)
+  ✔ should full reset (15.028211ms)
+  ✔ should recordAction for external spike injections (5.762385ms)
+  ✔ should provide comprehensive status (1.846988ms)
+✔ WMSimulationManager — Lifecycle (26.3319ms)
+▶ SNNStateEncoder
+  ✔ should encode to correct dimensionality (8.599377ms)
+  ✔ should produce different outputs for different inputs (2.357834ms)
+  ✔ should produce finite values (1.745596ms)
+  ✔ should handle zero input gracefully (1.614058ms)
+✔ SNNStateEncoder (15.335232ms)
+▶ LatentPredictor
+  ✔ should predict correct dimensionality (2.44936ms)
+  ✔ should be sensitive to different actions (1.316823ms)
+  ✔ should encode SpikeAction to fixed-size vector (1.91507ms)
+  ✔ should produce finite predictions (1.333508ms)
+✔ LatentPredictor (7.341842ms)
+▶ SIGReg
+  ✔ should return 0 for single embedding (0.27319ms)
+  ✔ should return low loss for Gaussian-distributed embeddings (40.113443ms)
+  ✔ should return higher loss for collapsed (constant) embeddings (44.609961ms)
+  ✔ should produce finite values (2.258003ms)
+✔ SIGReg (87.695328ms)
+▶ WorldModelEngine
+  ✔ should encode observations to latent embeddings (0.691646ms)
+  ✔ should predict next state given action (0.295513ms)
+  ✔ should train and reduce prediction loss over steps (8.699437ms)
+  ✔ should compute surprise scores (0.347711ms)
+  ✔ should plan towards goal states (4.021827ms)
+  ✔ should provide full status snapshot (0.152519ms)
+  ✔ should reset cleanly (0.110566ms)
+✔ WorldModelEngine (16.077913ms)
+▶ WorldModel Security
+  ✔ should handle NaN inputs without crashing (1.798375ms)
+  ✔ should handle Infinity inputs (1.379668ms)
+  ✔ should handle empty spike action (2.122932ms)
+✔ WorldModel Security (5.421324ms)
+ℹ tests 366
+ℹ suites 69
+ℹ pass 366
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4743.301097
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 test:empirical
+> python3 empirical/test_confront.py
+
+PASS STTC(identical) = 1  [1.0000]
+PASS STTC(independent Poisson) ≈ 0  [-0.0117]
+PASS Poisson: S2 ≈ 1  [1.000]
+PASS Poisson: S3 ≈ 0 bursts/min  [0.200]
+PASS Poisson: S5 ≈ 0  [-0.0001]
+PASS Bursty: S3 ≈ true burst rate  [12.00 vs 12.00]
+PASS Bursty: S4 > 0.7  [0.889]
+PASS Bursty: S5 > 0.5  [0.849]
+PASS Bursty: S2 > 1.5  [2.336]
+PASS verdict compatible
+PASS verdict marginal
+PASS verdict incompatible
+PASS verdict STTC abs band
+PASS global INADEQUATE
+PASS global ADEQUATE
+PASS NWB loader: 20 units, window ≤ 300 s, offset removed  [units=20 T=300.0]
+PASS End-to-end: Poisson model vs bursty 'real' data → INADEQUATE  [INADEQUATE]
+
+ALL PASS
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @astra/mcp-server@3.2.0-rc.1 test:e3
+> python3 empirical/e3/test_e3.py
+
+test_donor_bootstrap_not_seed_pseudoreplication (__main__.E3Tests.test_donor_bootstrap_not_seed_pseudoreplication) ... ok
+test_end_to_end_exploration_is_labelled_and_cannot_overwrite (__main__.E3Tests.test_end_to_end_exploration_is_labelled_and_cannot_overwrite) ... ok
+test_explicit_observation_interval_required_and_no_gap_inference (__main__.E3Tests.test_explicit_observation_interval_required_and_no_gap_inference) ... ok
+test_intercept_control_does_not_depend_on_test_age (__main__.E3Tests.test_intercept_control_does_not_depend_on_test_age) ... ok
+test_invalid_protocol_types_return_errors (__main__.E3Tests.test_invalid_protocol_types_return_errors) ... ok
+test_joint_draws_reproducible_and_positive_covariance (__main__.E3Tests.test_joint_draws_reproducible_and_positive_covariance) ... ok
+test_no_imputation_or_single_age_fit (__main__.E3Tests.test_no_imputation_or_single_age_fit) ... ok
+test_original_evidence_remains_frozen (__main__.E3Tests.test_original_evidence_remains_frozen) ... ok
+test_protocol_draft_blocked_before_test_spikes (__main__.E3Tests.test_protocol_draft_blocked_before_test_spikes) ... ok
+test_registration_digest_changes_when_design_changes (__main__.E3Tests.test_registration_digest_changes_when_design_changes) ... ok
+test_runner_produces_separate_prediction_and_age_scores (__main__.E3Tests.test_runner_produces_separate_prediction_and_age_scores) ... ok
+test_score_rewards_correct_joint_distribution (__main__.E3Tests.test_score_rewards_correct_joint_distribution) ... ok
+test_seen_data_and_donor_leakage_even_in_exploration (__main__.E3Tests.test_seen_data_and_donor_leakage_even_in_exploration) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.537s
+
+OK

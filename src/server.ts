@@ -211,7 +211,7 @@ export function createAstraServer(): McpServer {
     async () => ({ contents: [{ uri: 'astra://acm/state', mimeType: 'application/json', text: JSON.stringify(acmAdapter.getState(), null, 2) }] }));
 
   server.resource('ethics-welfare', 'astra://ethics/welfare',
-    { description: 'IRB compliance report', mimeType: 'application/json' },
+    { description: 'Synthetic biomarker alerts; no validated welfare diagnosis or IRB approval', mimeType: 'application/json' },
     async () => ({ contents: [{ uri: 'astra://ethics/welfare', mimeType: 'application/json', text: JSON.stringify(ethicsAdapter.getReport(), null, 2) }] }));
 
   server.resource('snapshot-current', 'astra://snapshot/current',
@@ -232,7 +232,7 @@ export function createAstraServer(): McpServer {
 
   server.prompt('ethics-stress-test', 'Progressive biomarker degradation', {}, async () => ({
     messages: [{ role: 'user' as const, content: { type: 'text' as const,
-      text: 'Ethics stress test: check_ethics → set_parameter "eth.viab" 85 → check_ethics → set_parameter "eth.viab" 75 → check_ethics → set_parameter "eth.viab" 95 → check_ethics. Analyze IRB compliance.' } }] }));
+      text: 'Ethics stress test: check_ethics → set_parameter "eth.viab" 85 → check_ethics → set_parameter "eth.viab" 75 → check_ethics → set_parameter "eth.viab" 95 → check_ethics. Analyze synthetic threshold alerts and their unvalidated welfare interpretation.' } }] }));
 
   // ═══ OVOMIND AFFECTIVE BRIDGE (51–56) — human exteroception (sim by default) ═══
   const ovomind = registerOvomindTools(server, {

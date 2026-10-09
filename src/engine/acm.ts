@@ -17,7 +17,8 @@
  * inspired by the following frameworks, NOT faithful implementations:
  *
  *   - IIT (Tononi): Φ̃ is an integration proxy based on network statistics.
- *     True IIT Φ requires exponential-time partition search (NP-hard).
+ *     Exact IIT computations depend on a specified formalism and search problem;
+ *     this inexpensive proxy supplies no certified approximation to them.
  *   - GWT (Baars): GW̃ is a synchrony proxy based on cross-layer
  *     firing rate variance. True GWT involves competitive coalition
  *     dynamics and ignition thresholds not modelled here.
@@ -47,6 +48,9 @@ export interface ACMResult {
     arousalProxy:     { value: number; weight: number; basis: string };
   };
   confidence: number;
+  confidenceBasis: string;
+  constructValidation: 'not-validated';
+  dataSource: 'simulated';
   totalCycles: number;
   formula: string;
   /** Declared status of `compositeScore` — carried in every payload. */
@@ -80,9 +84,8 @@ export class ACMModule {
   /**
    * Compute integration proxy (Φ̃) from SNN dynamics.
    *
-   * This is NOT IIT Φ. True Φ requires computing integrated information
-   * over all bipartitions of the system, which is computationally
-   * intractable for >20 elements. This proxy uses:
+   * This is NOT IIT Φ. No certified equivalence to a specific IIT formalism or error bound
+   * is supplied; cost claims depend on the formulation and approximation. This proxy uses:
    *   - Active neuron fraction (population participation)
    *   - Mean firing rate (overall excitation)
    *   - Weight coefficient of variation (synaptic heterogeneity)
@@ -186,6 +189,9 @@ export class ACMModule {
         },
       },
       confidence: +(confidence * 100).toFixed(1),
+      confidenceBasis: 'Legacy heuristic agreement/activation index (%), not a probability, confidence interval or empirical accuracy.',
+      constructValidation: 'not-validated',
+      dataSource: 'simulated',
       totalCycles: this.cycles,
       formula: `${w.alpha}×Φ̃ + ${w.beta}×GW̃ + ${w.gamma}×PAD̃ = ${score.toFixed(4)}`,
       aggregationStatus: ACM_AGGREGATION_STATUS,

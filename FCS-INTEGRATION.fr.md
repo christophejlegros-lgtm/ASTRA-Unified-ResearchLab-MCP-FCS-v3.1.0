@@ -1,6 +1,8 @@
 # Couche FCS — fonctionnalisme contraint par le substrat
 
-**ASTRA v3.1.1 · outils `fcs_*` (8) · ressources `astra://fcs/*` (4) · prompts (2)**
+> **Rectificatif v3.2 :** Pareto est un choix méthodologique, pas une unicité universelle démontrée par Arrow. Les canaux du magasin d'état sont simulés même en mode live. Un nombre fourni par l'appelant est rapporté, pas mesuré par défaut. Les verdicts de réalisation organoïde sont des hypothèses taxonomiques. Voir [rectificatif](docs/CORRECTIONS-THEORIQUES.fr.md).
+
+**ASTRA v3.2.0-rc.1 · outils `fcs_*` (8) · ressources `astra://fcs/*` (4) · prompts (2)**
 
 Implémentation, dans ASTRA, des valeurs de la série :
 
@@ -23,7 +25,7 @@ position les scores agrégés sur des critères ordinaux dépourvus d'échelle
 commune (document II §1.4, d'après Okasha 2011 — le théorème d'Arrow appliqué
 au choix de théorie).
 
-La règle d'agrégation admissible est donc unique : la **dominance au sens de
+La politique adoptée est la **dominance au sens de
 Pareto**, qui produit un ordre *partiel*. Deux couples incomparables le
 restent. `mayAggregate()` refuse à l'exécution toute combinaison de critères
 ordinaux, et `refuseAggregate()` renvoie un scalaire retenu portant son motif
@@ -150,9 +152,9 @@ sont calculés, non affirmés (`stratification.ts` §4, tests dans `tests/fcs.te
   occupent des strates différentes.
 - **La strate dépend du contexte.** Retirer l'ion (classe 1) fait remonter d'une
   strate les seize autres couples ; six retraits sur dix-sept déplacent au moins un
-  autre couple. C'est un défaut d'indépendance à l'égard des options non
-  pertinentes, la condition d'Arrow sous-jacente à Okasha (2011) : l'indice
-  étiquette l'épluchage, il n'est pas une propriété du couple.
+  autre couple. L'indice étiquette l'épluchage ; cette dépendance ne prouve pas
+  une violation de l'indépendance des préférences d'Arrow. La dominance de deux
+  couples ne change pas par retrait d'un tiers.
 
 L'objet fidèle au §2 du document IV est la **relation de dominance** — 93 paires
 ordonnées sur 136 — et son diagramme de Hasse. `fcs_stratify` rend les deux
@@ -176,9 +178,9 @@ C'est le point où la couche cesse d'être une table et devient une intégration
 |---|---|---|---|
 | *entrée externe* — Ca²⁺ extracellulaire, mM | **1** — ions | constitutif | mesuré (ASTRA n'a pas ce canal) |
 | `eth.ca` — Ca²⁺ libre **intracellulaire**, nM | *aucun couple* — second messager, hors classe 1 | — | rapporté, non lié |
-| `eth.fr` — fréquence de décharge médiane par unité, Hz | **3** — acides aminés transmetteurs | générateur | dérivé |
-| `eth.atp` — rapport ATP/ADP | **7** — métabolites énergétiques | permissif | mesuré |
-| `eth.viab` — viabilité, % | **2b** — Na⁺/K⁺-ATPase | permissif | dérivé (proxy) |
+| `eth.fr` — fréquence de décharge médiane par unité, Hz | **3** — acides aminés transmetteurs | générateur | proxy, provenance par canal |
+| `eth.atp` — rapport ATP/ADP | **7** — métabolites énergétiques | permissif | provenance par canal |
+| `eth.viab` — viabilité, % | **2b** — Na⁺/K⁺-ATPase | permissif | proxy, provenance par canal |
 
 **Calcium, corrigé en v3.1.1.** Jusqu'à la v3.1.0, `eth.ca` était lié à la classe 1
 comme « Ca²⁺ extracellulaire au bain de la MEA ». Or `ethics.ts` le définit comme

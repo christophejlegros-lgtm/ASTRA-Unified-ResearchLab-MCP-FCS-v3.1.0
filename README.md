@@ -2,8 +2,6 @@
 
 **Agent-orchestrated Simulation Testbed for Research on Awareness**
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23196959.svg)](https://doi.org/10.5281/zenodo.23196959)
-
 > **Data provenance.** All biological and physiological data produced by this server
 > are **simulated**. No living tissue, organoid, human subject or Koniku hardware is
 > connected: the NeuroPlatform bridge is instantiated in simulate mode, the OVOMIND live
@@ -38,6 +36,45 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://typescriptlang.org)
 
 Production-grade [Model Context Protocol](https://modelcontextprotocol.io) server exposing the ASTRA bio-hybrid neuromorphic simulation pipeline to AI assistants. Built with the official `@modelcontextprotocol/sdk`, it integrates a layered SNN LIF+STDP engine, consciousness proxy assessment, bio-computing platform telemetry, and an IRB ethics monitor — all queryable as MCP tools, resources, and prompts from **Claude Desktop**, **Cursor**, **VS Code**, and any MCP-compatible client.
+
+## v3.2.0-rc.1 - Consolidation candidate (9 October 2026)
+
+Local candidate prepared from the supplied archive (whose contents declare
+v3.1.1). No public release, DOI, independent review or biological E3 result is
+claimed. Historical E1/E2 code, protocols and results are preserved byte for byte.
+
+- Separate proxy estimates with null for unavailable/degenerate data, sample
+  coverage and explicit absence of causal identification. The public TCAI
+  composite is withheld; internal control indices remain conventional.
+- Per-channel biological provenance: mode=live does not authenticate a
+  measurement. Welfare demo labels are unvalidated; no IRB approval is inferred.
+- Corrected Pareto/Arrow justification and peeling-label interpretation.
+- An E3 joint Bayesian summary predictor with age, intercept control, raw data
+  hashes, independent-donor checks, predictive intervals and multivariate scores.
+  Its protocol is a draft and its confirmatory run is blocked until completed.
+- Concrete H1-H3 study-design and independent-review packets, with outstanding
+  laboratory, data, effect-size and registration decisions explicitly exposed.
+- Consistent candidate identifiers, evidence-integrity checks and reproducible
+  source-archive packaging. The GitHub repository name remains a historical URL.
+
+Start with [CONSOLIDATION.fr.md](CONSOLIDATION.fr.md), the
+[theoretical corrections](docs/CORRECTIONS-THEORIQUES.fr.md),
+[measurement cards](docs/PROXY-MEASUREMENT-CARDS.md) and
+[E3 draft](empirical/e3/PREREG-E3-DRAFT.md).
+
+```bash
+npm ci
+python3 -m pip install -r empirical/requirements.txt
+npm run validate:software
+# These readiness checks SHOULD fail on the delivered unregistered drafts:
+npm run check:e3
+npm run check:study
+npm run release:archive
+```
+
+The dashboard pages are labelled static demonstrations; their embedded values
+are not instrument measurements or validation results. External review and
+future biological acquisition remain pending.
 
 ## 🆕 v3.1.1 — Coherence corrections (audit of 6 October 2026)
 
@@ -419,7 +456,7 @@ live API when configured). `tests/annotations.test.ts` asserts that the table an
 | `astra://metrics/realtime` | Live metrics from all subsystems |
 | `astra://snn/topology` | **Actual** network architecture (reflects engine config) |
 | `astra://acm/state` | Current consciousness proxy assessment vector |
-| `astra://ethics/welfare` | IRB compliance and welfare report (mode-aware) |
+| `astra://ethics/welfare` | Synthetic biomarker alerts with explicit unvalidated welfare status |
 | `astra://snapshot/current` | Complete state dump |
 | `astra://wm/latent` | World Model latent embedding (current) |
 | `astra://wm/predictions` | World Model rollout predictions |
@@ -494,7 +531,7 @@ src/
     ├── logger.ts         # Structured logging (pino → stderr)
     └── rng.ts            # Global seeded PRNG (mulberry32, ASTRA_SEED)
 
-tests/                    # 354 tests · 66 suites
+tests/                    # candidate test counts: see validation/LOCAL-VALIDATION.json
 ├── astra.test.ts             # Unit: state, bounds, SNN, ACM, ethics, security
 ├── world-model.test.ts       # World Model: encoder, predictor, SIGReg, CEM, surprise
 ├── wm-simulation.test.ts     # WM simulation: buffer, training, planning, lifecycle
@@ -537,13 +574,13 @@ level or label is derived from it** (FCS prohibitions 1 and 4; the ABSENT…FULL
 
 | Component | Basis | Inspired by | What it actually measures |
 |---|---|---|---|
-| `integrationProxy` (Φ̃) | Active fraction + mean firing rate + synaptic heterogeneity | IIT (Tononi) | Network participation and complexity proxy. True Φ is NP-hard to compute. |
+| `integrationProxy` (Φ̃) | Active fraction + mean firing rate + synaptic heterogeneity | IIT (Tononi) | Network participation and complexity proxy; no certified IIT equivalence. |
 | `broadcastProxy` (GW̃) | Cross-layer firing rate synchrony (CV-based) | GWT (Baars) | Uniform activation across layers. Does not model competitive coalitions or ignition. |
 | `arousalProxy` (PAD̃) | Spike rate + bio coupling + energy | PAD (Mehrabian) | Arousal dimension only. Pleasure and Dominance are not computed. |
 
 ### Ethics IRB Monitor
 
-IRB compliance level **N3** (100K–1M neurons). Four biomarkers with three-state classification.
+Synthetic threshold demonstrator with four biomarkers and three conventional alert labels. No IRB approval, N3 compliance certification or validated welfare diagnosis is asserted; state-store values remain synthetic in every mode.
 
 **Mode-aware:** In `sim` mode, reports include explicit disclaimers that data is synthetic and `irbRequired` is `false`. In `live` mode, DISTRESS triggers mandatory IRB notification.
 
@@ -599,7 +636,7 @@ npm run golden:check       # TS↔NumPy active-inference golden (requires python
 npm run inspect
 ```
 
-> **Full suite: 354/354 passing** (230 engine/integration + 8 E2 model + 12 transport-layer + 86 FCS + 7 annotations + 6 reproducibility + 5 claim guard), 0 TypeScript errors
+> **Historical v3.1.1 assertion: 354/354 passing** (230 engine/integration + 8 E2 model + 12 transport-layer + 86 FCS + 7 annotations + 6 reproducibility + 5 claim guard), 0 TypeScript errors
 > (strict, Node16 ESM), 0 ESLint errors. Verified on Node 20 and Node 22 in CI.
 
 ## Development
@@ -660,10 +697,8 @@ MIT — © 2026 Christophe Jean Legros, Geneva — applies to everything in this
 > subject to its non-commercial terms. Details, file list and status:
 > [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
-**Citing and reviewing.** Releases are archived on Zenodo. Cite the version you used:
-v3.1.1 is [doi:10.5281/zenodo.23196960](https://doi.org/10.5281/zenodo.23196960); the
-concept DOI [doi:10.5281/zenodo.23196959](https://doi.org/10.5281/zenodo.23196959) covers
-all versions and resolves to the latest. Metadata: [`CITATION.cff`](CITATION.cff). External review is invited through
+**Citing and reviewing.** Cite via [`CITATION.cff`](CITATION.cff) (an archived DOI will be
+added with the first Zenodo release). External review is invited through
 [`REVIEW.md`](REVIEW.md); substrate-level predictions are drafted for preregistration in
 [`PREREGISTRATION.md`](PREREGISTRATION.md).
 
@@ -679,3 +714,5 @@ all versions and resolves to the latest. Metadata: [`CITATION.cff`](CITATION.cff
 - Tononi (2004) "An information integration theory of consciousness" — *BMC Neuroscience*
 - Baars (1988) "A Cognitive Theory of Consciousness" — Cambridge University Press
 - Mehrabian (1996) "Pleasure-Arousal-Dominance: A General Framework" — *Current Psychology*
+
+Candidate-local check results are recorded in `validation/LOCAL-VALIDATION.json`; the historical assertion above is not the candidate test count.

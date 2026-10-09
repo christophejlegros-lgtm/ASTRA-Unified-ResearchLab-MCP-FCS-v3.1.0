@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "draft",
+  "title": "E3 - Joint organoid-level statistical prediction with age and independent test data",
+  "scope": "S1-S5 summaries only; not spikes, mechanisms, consciousness or welfare",
+  "training": [],
+  "test": [],
+  "exclusions": [],
+  "analysis": {
+    "models": [
+      "joint-age",
+      "joint-intercept"
+    ],
+    "draws": 200,
+    "seed": 20261009,
+    "bootstrap_resamples": 2000,
+    "min_training_organoids": 10,
+    "min_test_donors": 5,
+    "min_training_per_age_band": 3,
+    "age_bands_days": [
+      [
+        1,
+        150
+      ],
+      [
+        151,
+        365
+      ]
+    ],
+    "primary": "donor-weighted-paired-energy-score-difference-age-minus-intercept",
+    "secondary": [
+      "per-statistic-absolute-error",
+      "90pct-predictive-coverage",
+      "interval-width",
+      "age-stratified-scores"
+    ],
+    "adequacy_verdict": "not-defined-no-global-adequacy-claim"
+  },
+  "design": {
+    "power_or_precision_justification": null,
+    "recording_window_seconds": 180,
+    "duration_source": "units/obs_intervals-single-contiguous-interval-required",
+    "minimum_active_units": 20,
+    "unit_policy": "all-curated-units-report-count-do-not-identify-units-with-electrodes",
+    "external_lab_required": true,
+    "selection_and_exclusions_fixed_before_spikes": null,
+    "stopping_rule": null,
+    "confounds": [
+      "age",
+      "preparation",
+      "donor",
+      "laboratory",
+      "unit-sorting",
+      "recording-length"
+    ]
+  },
+  "code_sha256": {
+    "empirical/e3/analysis.py": "0505a3e48abca11d20e0b73eda37489ecc7d0f7d4b86ef0d75b5f32c7263bae5",
+    "empirical/e3/protocol.py": "bfe84eafa17978874138b69cafb6a539f8cd59d488027ccb2a5d92c7a3984ae7",
+    "empirical/e3/run.py": "4771896e31fff3e0cd3115a2d4635acd39c13eadd4fae61364124df5213927d1",
+    "empirical/confront.py": "2e674ebaf34a31e56b3a0baabab3e4d5094fe6a51efb47faa8832fddb735a7ee",
+    "empirical/requirements.txt": "95c69c77565acff8b816f22b5ab083d648617df5084ce861850103e1e2985986"
+  },
+  "registration": {
+    "url": null,
+    "registered_payload_sha256": null,
+    "registered_at": null
+  }
+}

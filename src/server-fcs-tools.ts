@@ -56,7 +56,7 @@ function emit(payload: unknown) {
   return { content: [{ type: 'text' as const, text }] };
 }
 
-/** Live biomarker snapshot from the shared state store, if a reader is supplied. */
+/** Synthetic biomarker snapshot from the shared state store, if a reader is supplied. */
 export interface FcsToolDeps {
   /** Returns the ASTRA state snapshot; used to bind IRB biomarkers to the taxonomy. */
   getState?: () => { eth?: { ca?: number; fr?: number; atp?: number; viab?: number }; mode?: string };
@@ -70,7 +70,8 @@ function liveBiomarkers(deps: FcsToolDeps): BiomarkerInputs {
     firingRateHz: s.eth.fr,
     atpAdpRatio: s.eth.atp,
     viabilityPct: s.eth.viab,
-    meaFieldActive: s.mode === 'live',
+    meaFieldActive: false, // No instrument channel in this store; mode is only a setting.
+    sourceByField: { calciumNm: 'simulated', firingRateHz: 'simulated', atpAdpRatio: 'simulated', viabilityPct: 'simulated' },
   };
 }
 
@@ -82,7 +83,7 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
     'partition, the seventeen species–function pairs in their Pareto strata, the per-substrate conformance ' +
     'audit, the five prohibitions of the negative heuristic, and the declared revision order. Carries no ' +
     'aggregate score of any kind — prohibition 4 forbids one.',
-    { useLiveBiomarkers: z.boolean().optional().describe('Bind the conformance audit to the live IRB welfare channels. Default true.') },
+    { useLiveBiomarkers: z.boolean().optional().describe('Legacy option: bind the audit to synthetic state-store biomarkers. Default true.') },
     toolAnnotations('fcs_report'), async ({ useLiveBiomarkers }) =>
       emit(fcsReport(useLiveBiomarkers === false ? {} : liveBiomarkers(deps))),
   );
@@ -235,7 +236,7 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
     'fcs_conformance',
     'Audit one substrate — or all three — against the seventeen species–function pairs: which pairs it ' +
     'realises, which it only simulates, which are absent, and which ASTRA has no channel to determine. Binds ' +
-    'the live IRB welfare biomarkers to the taxonomy (ATP/ADP → class 7, median per-unit firing rate → class 3 ' +
+    'synthetic or caller-reported biomarkers to the taxonomy (ATP/ADP → class 7, median per-unit firing rate → class 3 ' +
     'generator, viability → class 2b proxy). Class 1 (mobile charge) reads only an EXTRACELLULAR calcium value ' +
     'in mM supplied by the caller; ASTRA\'s eth.ca is intracellular second-messenger Ca²⁺ and binds to no pair. ' +
     'Returns a profile, never a conformance score.',
@@ -249,7 +250,7 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
         .describe('Median per-unit spontaneous firing rate, Hz (DANDI 001603 reference interval 0.14–0.63 Hz).'),
       atpAdpRatio: z.number().min(0).optional(),
       viabilityPct: z.number().min(0).max(100).optional(),
-      useLiveBiomarkers: z.boolean().optional().describe('Start from the live state store, overridden by any value given above. Default true.'),
+      useLiveBiomarkers: z.boolean().optional().describe('Legacy name: start from the synthetic state store; supplied overrides are reported inputs. Default true.'),
     },
     toolAnnotations('fcs_conformance'), async ({ substrate, useLiveBiomarkers, ...overrides }) => {
       const base = useLiveBiomarkers === false ? {} : liveBiomarkers(deps);
@@ -259,6 +260,10 @@ export function registerFcsCapabilities(server: McpServer, deps: FcsToolDeps = {
       if (overrides.firingRateHz !== undefined) bio.firingRateHz = overrides.firingRateHz;
       if (overrides.atpAdpRatio !== undefined) bio.atpAdpRatio = overrides.atpAdpRatio;
       if (overrides.viabilityPct !== undefined) bio.viabilityPct = overrides.viabilityPct;
+      bio.sourceByField = { ...base.sourceByField };
+      for (const field of ['calciumNm', 'extracellularCalciumMm', 'firingRateHz', 'atpAdpRatio', 'viabilityPct'] as const) {
+        if (overrides[field] !== undefined) bio.sourceByField[field] = 'reported';
+      }
       return emit({
         biomarkers: bio,
         audits: substrate ? [auditSubstrate(substrate, bio)] : auditAll(bio),

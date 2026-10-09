@@ -46,10 +46,16 @@ jobs:
           python-version: '3.12'
 
       - name: Install numpy + h5py
-        run: python3 -m pip install --upgrade pip numpy h5py
+        run: python3 -m pip install -r empirical/requirements.txt
 
       - name: Install dependencies (clean)
         run: npm ci
+
+      - name: Candidate identifiers and historical evidence
+        run: npm run check:version && npm run check:evidence
+
+      - name: E3 synthetic controls (not biological validation)
+        run: npm run test:e3
 
       - name: Type-check / build (tsc strict, Node16 ESM)
         run: npm run build
@@ -70,13 +76,14 @@ jobs:
 
       - name: Tool-count smoke test (stdio transport)
         # The stdio entrypoint logs the capability summary at startup.
-        # Assert v3.1.1 exposes exactly 70 tools · 15 resources · 10 prompts
+        # Assert the current package exposes exactly 70 tools · 15 resources · 10 prompts
         # (50 core + 6 ovo_* + 6 orch_* + 8 fcs_*).
         run: |
           set -euo pipefail
           LOG="$(timeout 8s node dist/index.js 2>&1 || true)"
           echo "$LOG"
-          echo "$LOG" | grep -q "ASTRA MCP Server v3.1.1: 70 tools · 15 resources · 10 prompts" \
+          VERSION="$(node -p 'JSON.parse(require("fs").readFileSync("package.json","utf8")).version')"
+          echo "$LOG" | grep -Fq "ASTRA MCP Server v$VERSION: 70 tools · 15 resources · 10 prompts" \
             || { echo "::error::Capability summary mismatch (expected 70 tools · 15 resources · 10 prompts)"; exit 1; }
 
   docker-smoke:

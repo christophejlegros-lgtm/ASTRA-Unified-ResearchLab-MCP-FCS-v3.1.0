@@ -282,7 +282,7 @@ describe('FCS substrate conformance audit', () => {
     assert.equal(byId.get('7')!.reading.value, 3.5);         // ATP/ADP → class 7
     assert.equal(byId.get('3')!.reading.value, 0.4);         // firing rate → class 3
     assert.equal(byId.get('2b')!.reading.value, 95);         // viability → class 2b
-    assert.equal(byId.get('2b')!.reading.provenance, 'derived'); // proxy, not assay
+    assert.equal(byId.get('2b')!.reading.provenance, 'reported'); // proxy, not assay
   });
 
   test('intracellular Ca²⁺ (eth.ca, nM) binds to NO pair — second messenger, outside class 1 (v3.1.1)', () => {
@@ -298,7 +298,7 @@ describe('FCS substrate conformance audit', () => {
     const a = auditSubstrate('organoid-mea', { calciumNm: 65, extracellularCalciumMm: 1.8 });
     const c1 = a.pairs.find((p) => p.pairId === '1')!;
     assert.equal(c1.reading.value, 1.8);
-    assert.equal(c1.reading.provenance, 'measured');
+    assert.equal(c1.reading.provenance, 'reported');
   });
 
   test('a missing biomarker withholds rather than defaulting', () => {
@@ -663,5 +663,27 @@ describe('FCS belt extension — synthesis S-1.6 (v3.1.1)', () => {
     assert.match(r.provenance.documents.join(' '), /S-1\.6/);
     assert.match(r.provenance.documents.join(' '), /document IV, v1\.3/);
     assert.deepEqual(lintFcs(JSON.stringify(r.beltExtension)), []);
+  });
+});
+
+
+describe('FCS provenance and order controls (consolidation)', () => {
+  test('synthetic input is never promoted to measured by the taxonomy', () => {
+    const a = auditSubstrate('organoid-mea', {
+      atpAdpRatio: 3.5, meaFieldActive: true,
+      sourceByField: { atpAdpRatio: 'simulated', meaFieldActive: 'simulated' },
+    });
+    assert.equal(a.pairs.find(p => p.pairId === '7')!.reading.provenance, 'simulated');
+    assert.equal(a.carrier.fieldObserved.provenance, 'simulated');
+    assert.equal(a.realisationBasis, 'taxonomic-assumption');
+  });
+  test('removing a third option changes peeling labels but not pairwise dominance', () => {
+    for (const removed of PAIRS) {
+      const rest = PAIRS.filter(p => p.id !== removed.id);
+      const relation = new Set(dominanceRelation(rest).dominates.map(([a,b]) => a+'>'+b));
+      for (const a of rest) for (const b of rest) {
+        assert.equal(relation.has(a.id+'>'+b.id), dominates(a,b).dominates);
+      }
+    }
   });
 });

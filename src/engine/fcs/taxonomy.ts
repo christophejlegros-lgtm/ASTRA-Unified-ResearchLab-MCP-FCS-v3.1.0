@@ -11,7 +11,7 @@
  * The table below carries NO aggregate score and none may be derived from it.
  * The three sub-criteria are ordinal and lack a common scale; the series'
  * negative heuristic forbids aggregating them (prohibition 4, after Okasha
- * 2011 on Arrow's theorem applied to theory choice). The only admissible
+ * 2011 on Arrow's theorem applied to theory choice). The policy-adopted
  * combination rule is Pareto dominance — see ./stratification.ts.
  *
  * THE ORDER IS OF FUNCTIONS, NOT OF SUBSTANCES

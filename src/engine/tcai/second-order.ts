@@ -507,7 +507,7 @@ export interface SecondOrderInput {
   realizedValence: number;        // emotion.valence (capability outcome)
   confidenceCalibration: number;  // self-model
   temporalContinuity: number;     // self-model
-  compositeProxy: number;         // current TCAI composite report
+  compositeProxy: number;         // internal conventional control diagnostic, not the public TCAI report
   substrateScore: number;         // GROUNDED substrate feature ∈[0,1] (ignition·syncR·Φ̃)
   taskFeedback: number;           // external task signal ∈[-1,1], INDEPENDENT of substrate
 }

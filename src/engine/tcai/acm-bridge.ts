@@ -8,7 +8,7 @@
  *   specialists → bids → AKOrN binding → GNW competition → ignition
  *        → broadcast → qualia → emotion appraisal → reward shaping
  *        → emotional memory (attention-gated) → self-model update
- *        → metrics (GNW · EI · Φ̃-RIIU) → composite report
+ *        → metrics (GNW · transitions · covariance) → separate estimates
  *
  * The system is fed from live ASTRA state (SNN layer firing rates, sensor
  * latents, world-model surprise), making the vendored ACM architecture an
@@ -26,7 +26,7 @@ import { GlobalWorkspace, type GWConfig } from './global-workspace.js';
 import { EmotionalMemoryCore } from './emotional-memory.js';
 import { EmotionalProcessor, EmotionalRewardShaper, type RewardMetrics } from './emotion.js';
 import { SelfRepresentationCore } from './self-model.js';
-import { GNWMetrics, RIIUPhi, computeEffectiveInformation, discretizeContinuous } from './metrics.js';
+import { GNWMetrics, RIIUPhi, estimateTransitionInformation, discretizeContinuous, type ProxyEstimate } from './metrics.js';
 import { SecondOrderLoop } from './second-order.js';
 import { SNNEngine } from '../snn.js';
 
@@ -56,7 +56,8 @@ export interface CycleResult {
   reward: RewardMetrics;
   memoryStored: boolean;
   selfContinuity: number;
-  phiRIIU: number;
+  phiRIIU: number | null;
+  phiEstimate: ProxyEstimate;
   secondOrder: SecondOrderState;
 }
 
@@ -191,6 +192,8 @@ export class TCAIConsciousnessSystem {
     const span = Math.max(8, this.frHi - this.frLo);
     const snnFeature = Math.max(0, Math.min(1, (fr - this.frLo) / span));
 
+    // Conventional INTERNAL control diagnostic. Unavailable covariance gets
+    // neutral input 0 here only; this fallback is never published as an estimate.
     const compositeNow = Math.max(0, Math.min(1,
       0.35 * this.gnwMetrics.report().meanIgnition + 0.25 * this.riiu.computeValue() +
       0.2 * this.workspace.getUnityMetrics().unity + 0.2 * competition.ignition));
@@ -218,30 +221,30 @@ export class TCAIConsciousnessSystem {
       reward,
       memoryStored: stored.stored,
       selfContinuity: self.temporalContinuity,
-      phiRIIU: this.riiu.computeValue(),
+      phiRIIU: this.riiu.estimate().value,
+      phiEstimate: this.riiu.estimate(),
       secondOrder,
     };
   }
 
-  /** Composite consciousness proxy report (consciousness_metrics.py spirit). */
+  /** Separate descriptive estimates; no composite consciousness scale. */
   report(): ConsciousnessReport {
     const gnw = this.gnwMetrics.report();
-    const phi = this.riiu.computeValue();
-    const ei = computeEffectiveInformation(discretizeContinuous(this.ignitionTrajectory, 8), 8);
-    const eiNorm = Math.min(1, ei / 3); // log2(8) = 3 bits max
-    const unity = this.workspace.getUnityMetrics();
-    const composite = Math.max(0, Math.min(1,
-      0.35 * gnw.meanIgnition + 0.25 * phi + 0.2 * eiNorm + 0.2 * unity.unity));
+    const phi = this.riiu.estimate();
+    const ei = estimateTransitionInformation(discretizeContinuous(this.ignitionTrajectory, 8), 8);
     return {
       gnw,
-      phiRIIUProxy: phi,
-      effectiveInformation: ei,
+      phiRIIUProxy: phi.value,
+      effectiveInformation: ei.value,
+      estimates: { covariance: phi, transitionInformation: ei },
+      gnwAvailability: gnw.steps ? 'available' : 'unavailable',
       workspace: {
         ignition: this.workspace.state.broadcastStrength,
         syncR: this.workspace.state.syncR,
         focus: this.workspace.state.focusTopic,
       },
-      composite,
+      composite: null,
+      aggregationStatus: 'Withheld: no common measurement scale; separate descriptive estimates only. Internal control diagnostics are conventional and are not measurements of experience.',
       disclaimer: PROXY_DISCLAIMER,
     };
   }

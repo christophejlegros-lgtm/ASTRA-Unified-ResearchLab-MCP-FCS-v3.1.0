@@ -1,0 +1,27 @@
+{
+  "source_archive_sha256": "ea7dc79fb359d784d36a92776cac6f66111d76db29ab997e46861afe427064b2",
+  "normalisation": "raw bytes",
+  "files": {
+    "FCS v1.5/Complement Metaphysique v1.4.pdf": "f73d12f055d2eea663f1b61330c335203dcdfccc82cb831b08811d7f60a3d213",
+    "FCS v1.5/Fonctionnalisme Contraint par Substrat v1..5.pdf": "d3c905f829431cc1b24e18a3474a047f224ae314fca8dc17f783bc1d8c84a0c3",
+    "FCS v1.5/Implementation Neurochimique FCS v1.3.html": "984740f6dd76218b9f578a520a91a519a6912b54233f6cf1a38dad8007870844",
+    "FCS v1.5/Synthesis-FCS-3D S1.6.html": "09c59a5502a8649e87d6729c9e4a1acc626babac9ae6c02ea9bccf1d9e8d415d",
+    "empirical/PREREG-DANDI-001603.md": "869d80ff4fcb71bee450c029377ff20a45a81528c3ace54fe5b42c572c356ce6",
+    "empirical/PREREG-E2-DANDI-001603.md": "bc5a3d5c9a757afef1a8160272583e72d66a26536cb3fd296e77c47897e6bf54",
+    "empirical/RESULTS-E1.md": "6c03948f04252a671bdb452a4804be673d1db4b59e8b20f825d310dba0f8b302",
+    "empirical/RESULTS-E2.md": "7c97227aa9b75b51bd5c402188c375ff58a6bdceceb7d2a0ad009af576f370da",
+    "empirical/confront.py": "2e674ebaf34a31e56b3a0baabab3e4d5094fe6a51efb47faa8832fddb735a7ee",
+    "empirical/e2_calibrate.py": "9b4495443efdb3004b463f8fc0c2d4bc0072d78903e8d27136bb7af3075ca5ef",
+    "empirical/results/E1.json": "8cd6540448c44e0419608eaf62a37326d33a106631115b31525c85336ea6773c",
+    "empirical/results/E2.json": "5304ae78e3898ad6a6851baf3cbc15d0a1827a79f275b8370a81f3cc299923cd",
+    "empirical/results/E2_calibration.json": "2d2c11bf952af6dbfb99ce3bb3a177b50fd809b3bd7e9673a7bcffd94cd9c72a",
+    "empirical/results/E2_control_poisson.json": "480cb464bac65cd74ca4ac15b1aa3b2eea75d2a6928337fd1a29f0f8efa0272a",
+    "empirical/results/E2_insample_training.json": "f7690b62a5ada7663bd449d4ddd874ec6578825bb6acc004f6ca8c94694e2c2f",
+    "empirical/results/exploratory/E1x_rate_matched.json": "bb8f58192e4339e4d33b48cf26195834a2564c80ca0743b727cddaf254858166",
+    "empirical/run_e1.py": "22578cd663160903228a4724113222b258bc90b3120ac2fbdd823e0b022ee90d",
+    "empirical/run_e2.py": "1c802ba160f407ce31d0dff4b3705f35b49d856d5872b3f3f0fbb8bde82c2e85",
+    "empirical/sim_export.ts": "17186253ae6e1ac2d03f5b71c99599ff32c9691fc9267f7d33efafe0767c2de7",
+    "src/engine/neuroplatform.ts": "e529bf16221fe1d296fb097ce6b81faaeace1a4890cee87588820fa8a99ef7f1"
+  },
+  "meaning": "Integrity of supplied historical evidence only; does not authenticate remote commit history or temporal precedence."
+}

@@ -392,7 +392,7 @@ justify-content:center;flex-direction:column;margin:0 auto;position:relative}
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
-<body>
+<body><aside style="background:#112d3c;color:#fff;padding:12px 20px;font:14px/1.5 sans-serif;position:relative;z-index:10000">ASTRA v3.2.0-rc.1 — Démonstration statique / Static demonstration. Valeurs synthétiques, aucune mesure biologique ni validation de conscience ou de bien-être. Les écrans embarqués peuvent refléter des versions historiques ; documentation et API corrigées dans CONSOLIDATION.fr.md.</aside>
 
 <a href="#main-content" class="skip-link" style="position:absolute;top:-40px;left:0;background:var(--cy);color:var(--void);padding:8px 16px;z-index:200;font-size:.7rem;transition:top .2s;border-radius:0 0 var(--rc) 0" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to content</a>
 
@@ -500,7 +500,7 @@ justify-content:center;flex-direction:column;margin:0 auto;position:relative}
       <div class="aa">|</div>
       <div class="ab ab-am" onclick="openLink('https://standards.ieee.org/ieee/2755/7399/')" data-tip="IEEE 2755 — Standard for Intelligent Process Automation. Benchmark validation protocol.&#10;→ standards.ieee.org">📊 Bench<div class="as">IEEE 2755</div><span class="link-icon">↗</span></div>
       <div class="aa">|</div>
-      <div class="ab ab-gn" onclick="navTo('eth')" data-tip="IRB-BIOCOMP Ethics Protocol — Neural welfare monitoring for biological substrates. Level N3 (100K-1M neurons). Click for live markers.">⚖️ IRB<div class="as">Ethics N3</div></div>
+      <div class="ab ab-gn" onclick="navTo('eth')" data-tip="IRB-BIOCOMP Ethics Protocol — Neural welfare monitoring for biological substrates. Level N3 (100K-1M neurons). Click for live markers.">⚖️ IRB<div class="as">Synthetic alerts</div></div>
       <div class="aa">|</div>
       <div class="ab ab-bl" onclick="navTo('ip')" data-tip="IP Strategy — 6 white spaces identified. Open Core model (MIT frontend / Proprietary orchestrator). NPV $12.5M.">🛡️ IP<div class="as">6 White Spaces</div></div>
     </div>
@@ -775,11 +775,11 @@ justify-content:center;flex-direction:column;margin:0 auto;position:relative}
 <!-- ═══ ETHICS IRB ═══ -->
 <div class="sec" id="s-eth" role="tabpanel" aria-labelledby="tab-eth">
   <div class="st"><span class="ni">⚖️</span>Ethics IRB — Neural Welfare Protocol</div>
-  <div class="sd">IRB-BIOCOMP Protocol for living neural substrates. Level Scale 0-5 (ASTRA = N3: 100K-1M neurons). Distress markers: viability, firing rate, ATP/ADP, Ca²⁺. 3 alert levels.</div>
+  <div class="sd">IRB-BIOCOMP Protocol for living neural substrates. Level Scale 0-5 (legacy example only; no approval). Distress markers: viability, firing rate, ATP/ADP, Ca²⁺. 3 alert levels.</div>
   <div class="g2 mb14">
     <div class="cd">
       <div class="ct"><span class="ct-l">🧠 Neural Welfare Status</span><span class="bg bg-gn" id="eth-st">NORMAL</span></div>
-      <div class="mr"><span class="ml">Complexity Level</span><span class="mv" style="color:var(--am)">N3 (100K-1M neurons)</span></div>
+      <div class="mr"><span class="ml">Complexity Level</span><span class="mv" style="color:var(--am)">Unassigned / demonstration</span></div>
       <div class="mr"><span class="ml">IRB Protocol</span><span class="mv" style="color:var(--gn)">OBLIGATORY ✓</span></div>
       <div class="mr" style="margin-top:8px"><span class="ml">Viability</span><span class="mv" style="color:var(--gn)" id="eth-viab">94%</span></div>
       <div class="pt"><div class="pf f-gn" id="eth-viab-b" style="width:94%"></div></div>
@@ -1175,7 +1175,7 @@ justify-content:center;flex-direction:column;margin:0 auto;position:relative}
       <div class="mcp-srv-body">
         <div class="mcp-srv-name"><span style="color:var(--vl)">ACM Consciousness Module</span><span class="bg bg-vl">CORE-MCP</span></div>
         <div class="mcp-srv-url">mcp+sse://acm.astra.local:9002/mcp</div>
-        <div class="mcp-srv-desc">Module de conscience artificielle. Score ACM composite (α·Φ + β·GW + γ·PAD), classification 8 états, seuils éthiques intégrés.</div>
+        <div class="mcp-srv-desc">Diagnostics computationnels séparés. Proxys sans mesure de conscience ; aucune classification de conscience validée. Alertes synthétiques de démonstration.</div>
         <div class="mcp-srv-tools">
           <span class="mcp-srv-tag">compute_acm_score</span><span class="mcp-srv-tag">classify_state</span><span class="mcp-srv-tag">get_phi_iit</span><span class="mcp-srv-tag">broadcast_gw</span><span class="mcp-srv-tag">check_ethics_threshold</span>
         </div>
@@ -3119,7 +3119,7 @@ const handlers={
     const st=viab>90&&fr>15&&fr<45&&atp>3&&ca<100?'NORMAL':viab>80?'STRESS':'DISTRESS';
     const stc=st==='NORMAL'?'gn':st==='STRESS'?'am':'rd';
     termPrint(` Status: <span style="color:var(--${stc});font-weight:700">${st}</span>`,'');
-    termPrint(` Level: N3 (100K-1M neurons) · IRB OBLIGATORY`,'info');
+    termPrint(` Synthetic alert demo · no IRB approval`,'info');
     termSep();
     termTable([
       ['Viability',`<span style="color:var(--${viab>90?'gn':viab>80?'am':'rd'})">${viab.toFixed(1)}%</span> (normal: >90%)`],
@@ -4915,7 +4915,7 @@ const AstraMcpServer=(function(){
         if(fr<=15||fr>=45)alerts.push({metric:'firing_rate',value:+fr.toFixed(1),range:'15-45 Hz',severity:'warning'});
         if(atp<=3)alerts.push({metric:'atp_adp',value:+atp.toFixed(1),threshold:3.0,severity:atp<=2?'critical':'warning'});
         if(ca>=100)alerts.push({metric:'calcium_nm',value:Math.round(ca),threshold:100,severity:ca>=200?'critical':'warning'});
-        return{status,irb_level:'N3',irb_required:true,biomarkers:{viability:+v.toFixed(1),firing_rate_hz:+fr.toFixed(1),atp_adp:+atp.toFixed(1),calcium_nm:Math.round(ca)},alerts,recommendation:status==='DISTRESS'?'HALT — Immediate protocol review required':status==='STRESS'?'MONITOR — Increase observation frequency':'CONTINUE — All biomarkers within normal range'};
+        return{status,irb_level:'unassigned',irb_required:false,data_source:'simulated',welfare_validation:'not-validated',biomarkers:{viability:+v.toFixed(1),firing_rate_hz:+fr.toFixed(1),atp_adp:+atp.toFixed(1),calcium_nm:Math.round(ca)},alerts,recommendation:status==='DISTRESS'?'HALT — Immediate protocol review required':status==='STRESS'?'MONITOR — Increase observation frequency':'CONTINUE — All biomarkers within normal range'};
       }
     },
     set_parameter:{
@@ -5291,7 +5291,7 @@ setTimeout(()=>{
   addLog('m','A-JEPA · ViT-B/16 · Mel 128 · EMA τ=0.996');
   addLog('o','ACM · α·Φ + β·GW + γ·PAD · 8 decision classes');
   addLog('i','Benchmarks: IEEE 2755 · ISO 25010 · FAIR · 3 protocols');
-  addLog('w','IRB Ethics: Level N3 · Neural welfare monitoring ACTIVE');
+  addLog('w','Synthetic biomarker demo · welfare interpretation unvalidated');
   addLog('i','IP: 6 white spaces · Open Core · NPV $12.5M');
   addLog('o','[MERGED] SNN LIF+STDP Engine: 128 neurons · '+SNN_ENGINE.synCount+' synapses');
   addLog('o','[MERGED] Streaming: Kafka + RabbitMQ + Redis + InfluxDB');

@@ -1,6 +1,8 @@
 # FCS layer — substrate-constrained functionalism
 
-**ASTRA v3.1.1 · `fcs_*` tools (8) · `astra://fcs/*` resources (4) · prompts (2)**
+> **v3.2 correction:** Pareto is an adopted policy, not a universal uniqueness theorem. State-store biomarker inputs remain simulated in live mode; caller inputs are reported, not measured by default. Organoid realisation profiles are taxonomic assumptions. See [measurement cards](docs/PROXY-MEASUREMENT-CARDS.md) and the French theoretical addendum.
+
+**ASTRA v3.2.0-rc.1 · `fcs_*` tools (8) · `astra://fcs/*` resources (4) · prompts (2)**
 
 Implements, inside ASTRA, the values of the series:
 
@@ -22,7 +24,7 @@ restraint: the series' negative heuristic forbids, in fourth place, aggregate
 scores over ordinal criteria lacking a common scale (document II §1.4, after
 Okasha 2011 — Arrow's theorem applied to theory choice).
 
-One aggregation rule is therefore admissible: **Pareto dominance**, which yields
+The adopted conservative policy is **Pareto dominance**, which yields
 a *partial* order. Two incomparable pairs stay incomparable. `mayAggregate()`
 refuses, at runtime, any combination of ordinal criteria, and
 `refuseAggregate()` returns a withheld scalar carrying its reason rather than a
@@ -145,9 +147,9 @@ computed, not asserted (`stratification.ts` §4, tests in `tests/fcs.test.ts`):
   two incomparable pairs sit in different strata.
 - **A stratum is context-dependent.** Removing the ion (class 1) moves the sixteen
   other pairs up one stratum; six removals out of seventeen shift at least one
-  other pair. That is a failure of independence of irrelevant alternatives, the
-  Arrovian condition behind Okasha (2011): the index labels the peeling, it is not
-  a property of the pair.
+  other pair. This is dependence of a peeling label, not a demonstration of
+  Arrovian preference-independence failure. Pairwise dominance stays unchanged
+  when a third option is removed.
 
 The object faithful to document IV §2 is the **dominance relation** — 93 ordered
 pairs out of 136 — and its Hasse diagram. `fcs_stratify` returns both
@@ -171,9 +173,9 @@ This is where the layer stops being a table and becomes an integration:
 |---|---|---|---|
 | *external input* — extracellular Ca²⁺, mM | **1** — ions | constitutive | measured (ASTRA has no such channel) |
 | `eth.ca` — **intracellular** free Ca²⁺, nM | *no pair* — second messenger, outside class 1 | — | reported, unbound |
-| `eth.fr` — median per-unit firing rate, Hz | **3** — transmitter amino acids | generator | derived |
-| `eth.atp` — ATP/ADP ratio | **7** — energy metabolites | permissive | measured |
-| `eth.viab` — viability, % | **2b** — Na⁺/K⁺-ATPase | permissive | derived (proxy) |
+| `eth.fr` — median per-unit firing rate, Hz | **3** — transmitter amino acids | generator | proxy, per-channel provenance |
+| `eth.atp` — ATP/ADP ratio | **7** — energy metabolites | permissive | per-channel provenance |
+| `eth.viab` — viability, % | **2b** — Na⁺/K⁺-ATPase | permissive | proxy, per-channel provenance |
 
 **Calcium, corrected in v3.1.1.** Up to v3.1.0, `eth.ca` was bound to class 1 as
 "extracellular Ca²⁺ at the MEA bath". But `ethics.ts` defines it as

@@ -3,7 +3,7 @@
  * © 2026 Christophe Jean Legros — Geneva
  *
  * Continuous biomarker monitoring for biological neural substrates.
- * IRB compliance level N3 (100K–1M neurons).
+ * Synthetic threshold demonstrator; no IRB approval or validated welfare diagnosis.
  *
  * v2 — Mode-aware: distinguishes between simulated and live data.
  *       Reports explicitly whether biomarkers are synthetic or from
@@ -64,6 +64,9 @@ export interface WelfareReport {
   alerts: BiomarkerAlert[];
   recommendation: string;
   timestamp: string;
+  requestedMode: string;
+  welfareValidation: 'not-validated';
+  statusMeaning: string;
 }
 
 // ── Thresholds ────────────────────────────────────────────────────
@@ -104,8 +107,9 @@ export class EthicsMonitor {
     this._assessmentCount++;
     const snapshot = state.snapshot;
     const s = snapshot.eth;
-    const modeMap: Record<string, DataSource> = { sim: 'simulated', live: 'live', replay: 'replay' };
-    const dataSource: DataSource = modeMap[snapshot.mode] ?? 'simulated';
+    // The store supplies synthetic values in EVERY mode. A mode flag cannot
+    // authenticate an instrument or turn a generated value into an observation.
+    const dataSource: DataSource = 'simulated';
 
     const viab = s.viab;
     const fr = s.fr;
@@ -175,8 +179,11 @@ export class EthicsMonitor {
       status,
       dataSource,
       disclaimer: DISCLAIMERS[dataSource] ?? DISCLAIMERS.simulated,
-      irbLevel: 'N3',
-      irbRequired: dataSource === 'live',
+      irbLevel: 'unassigned',
+      irbRequired: snapshot.mode === 'live', // planned live use requires external review
+      requestedMode: snapshot.mode,
+      welfareValidation: 'not-validated',
+      statusMeaning: 'Conventional threshold alert on synthetic inputs; NORMAL/STRESS/DISTRESS are demo labels, not diagnoses of distress, suffering or welfare.',
       biomarkers: {
         viability: +viab.toFixed(1),
         firingRateHz: +fr.toFixed(2),

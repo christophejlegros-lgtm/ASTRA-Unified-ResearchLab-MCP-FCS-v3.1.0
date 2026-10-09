@@ -126,10 +126,16 @@ export interface GNWMetricsReport {
 
 export interface ConsciousnessReport {
   gnw: GNWMetricsReport;
-  phiRIIUProxy: number;
-  effectiveInformation: number;
+  phiRIIUProxy: number | null;
+  effectiveInformation: number | null;
+  estimates: {
+    covariance: import('./metrics.js').ProxyEstimate;
+    transitionInformation: import('./metrics.js').TransitionInformationEstimate;
+  };
+  gnwAvailability: 'available' | 'unavailable';
   workspace: { ignition: number; syncR: number; focus: string };
-  composite: number;                  // blended TCAI proxy score ∈ [0, 1]
+  composite: null;                    // intentionally withheld in v3.2
+  aggregationStatus: string;
   disclaimer: string;
 }
 

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "status": "draft-not-registered",
+  "scope": "H1-H2 substrate causality; H3 access signatures only; no phenomenal inference",
+  "common": {
+    "species_age_preparation": null,
+    "responsible_laboratory": null,
+    "independent_reviewer": null,
+    "ethics_authorisation_reference": null,
+    "sample_size_and_precision_justification": null,
+    "randomisation_and_blinding": null,
+    "exclusions": null,
+    "stopping_rule": null,
+    "registration_url": null,
+    "registration_timestamp": null
+  },
+  "H1": {
+    "question": "Autonomous field-mediated propagation under synaptic blockade",
+    "primary_observable": "probability of propagation across a verified complete cut, per preparation",
+    "planned_contrast": "propagation under blockade minus propagation with opposition field, paired per preparation",
+    "direction": "positive",
+    "blockade_agents_and_concentrations": null,
+    "blockade_completeness_criterion": null,
+    "cut_and_gap_verification": null,
+    "opposition_field_and_sham": null,
+    "analysis_model_and_threshold": null,
+    "confounds": ["residual transmission", "incomplete cut", "measurement artefact", "global excitability", "non-specific field effects"],
+    "withdrawal_field": "ephapticPropagationUnderBlockade"
+  },
+  "H2": {
+    "question": "Propagation gain versus extracellular volume fraction",
+    "primary_observable": "within-preparation propagation probability or speed versus measured volume fraction",
+    "direction": "reduced volume fraction facilitates propagation; increased fraction impedes it",
+    "volume_levels_and_measurement": null,
+    "extracellular_potassium_measurement": null,
+    "cell_volume_and_excitability_controls": null,
+    "blockade_completeness_criterion": null,
+    "analysis_model_and_threshold": null,
+    "confounds": ["potassium", "cell volume", "residual vesicular effects", "viability", "osmotic effects"],
+    "withdrawal_field": "efficacyVariesWithVolumeFraction"
+  },
+  "H3": {
+    "question": "Intervention on field coupling gain and local level-IV signatures",
+    "primary_observable": "predefined local access-signature change under gain intervention versus sham",
+    "h3a_covariation": "secondary and non-discriminating alone",
+    "access_signature_and_instrument": null,
+    "gain_intervention_and_sham": null,
+    "specificity_and_general_function_preserved": null,
+    "ionic_composition_and_state_controls": null,
+    "analysis_model_and_threshold": null,
+    "confounds": ["common neuromodulatory cause", "general excitability", "vigilance", "ion composition", "movement and recording artefacts"],
+    "withdrawal_field": "bridgeLocalIntervention"
+  }
+}

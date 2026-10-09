@@ -72,13 +72,14 @@ export const PROHIBITIONS: Record<ProhibitionId, Prohibition> = {
     fr: 'Interdiction des scores agrégés sur des critères ordinaux dépourvus d\'échelle commune.',
     en: 'No aggregate scores over ordinal criteria lacking a common scale.',
     rationaleFr:
-      'Document II §1.4, d\'après Okasha (2011) : le théorème d\'Arrow s\'applique au choix de théorie. ' +
-      'Une agrégation sans échelle commune introduit une dictature de critère non déclarée. La seule règle ' +
-      'admissible est la dominance de Pareto, qui produit un ordre partiel.',
+      'Politique FCS : sans échelle commune et justification de mesure, aucun score ordinal agrégé. ' +
+      'Pareto conserve les incomparabilités. La discussion d’Arrow/Okasha motive la prudence ; elle ne ' +
+      'démontre ni une dictature pour tout score ni l’unicité universelle de Pareto.',
     rationaleEn:
-      'Document II §1.4, after Okasha (2011): Arrow\'s theorem applies to theory choice. Aggregation without a ' +
-      'common scale introduces an undeclared dictatorship of criterion. The only admissible rule is Pareto ' +
-      'dominance, which yields a partial order.',
+      'FCS policy: no aggregated ordinal score without a common measurement scale and justification. ' +
+      'Pareto preserves incomparabilities. Arrow/Okasha motivates caution; it does not prove that every ' +
+      'score is dictatorial or that Pareto is universally unique.',
+
   },
   P5: {
     id: 'P5',
@@ -104,8 +105,8 @@ export interface OrdinalCriterion {
   /** Ordinal values, one per item. */
   values: number[];
   /**
-   * The unit this criterion is measured in. Two criteria share a scale only if
-   * they share a unit. `null` means "rank", which is never shared.
+   * The unit this criterion is measured in. A shared unit is necessary here but is not proof of the same
+   * construct or calibration. `null` means an ordinal rank.
    */
   unit: string | null;
 }
@@ -150,8 +151,8 @@ export function mayAggregate(criteria: readonly OrdinalCriterion[]): Aggregation
   if (!hasRank && units.size === 1) {
     return {
       admissible: true, prohibition: null,
-      reasonFr: `Tous les critères portent la même unité (${[...units][0]}) : l'opération est arithmétique, non agrégative.`,
-      reasonEn: `All criteria carry the same unit (${[...units][0]}): the operation is arithmetic, not aggregative.`,
+      reasonFr: `Même unité déclarée (${[...units][0]}) : contrôle dimensionnel seulement ; construit, calibration et opération restent à justifier.`,
+      reasonEn: `Same declared unit (${[...units][0]}): dimensional check passes only; construct equivalence, calibration and the operation still require justification.`,
     };
   }
   const names = criteria.map((c) => c.name).join(', ');
@@ -159,10 +160,10 @@ export function mayAggregate(criteria: readonly OrdinalCriterion[]): Aggregation
     admissible: false, prohibition: 'P4',
     reasonFr:
       `Agrégation refusée sur [${names}] : critères ordinaux dépourvus d'échelle commune (interdiction 4). ` +
-      'Règle admissible : dominance de Pareto, ordre partiel en strates.',
+      'Politique adoptée : dominance de Pareto ; les strates présentent cet ordre partiel.',
     reasonEn:
       `Aggregation refused over [${names}]: ordinal criteria lacking a common scale (prohibition 4). ` +
-      'Admissible rule: Pareto dominance, a partial order in strata.',
+      'Adopted policy: Pareto dominance; strata present this partial order.',
   };
 }
 

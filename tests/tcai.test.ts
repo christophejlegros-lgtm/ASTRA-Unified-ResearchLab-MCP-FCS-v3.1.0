@@ -253,16 +253,18 @@ describe('TCAI · Consciousness System (full cycle)', () => {
     assert.equal(sys.getCycles(), 10);
     assert.ok(res.competition.syncR >= 0 && res.competition.syncR <= 1);
     assert.ok(res.emotion.valence > 0, 'sustained positive reward → positive valence');
-    assert.ok(res.phiRIIU >= 0 && res.phiRIIU <= 1);
+    assert.ok(res.phiRIIU === null || (res.phiRIIU >= 0 && res.phiRIIU <= 1));
+    assert.equal(res.phiRIIU, res.phiEstimate.value);
     assert.ok(res.selfContinuity > 0.5, 'stable input → high temporal continuity');
   });
 
-  test('report() produces bounded composite with disclaimer', () => {
+  test('report() withholds composite and publishes separate estimates with disclaimer', () => {
     const sys = new TCAIConsciousnessSystem();
     const signals = { vision: Array.from({ length: 64 }, (_, j) => Math.sin(0.3 * j)) };
     for (let i = 0; i < 12; i++) sys.runCycle({ signals, rewardSignal: 0.5 });
     const rep = sys.report();
-    assert.ok(rep.composite >= 0 && rep.composite <= 1);
+    assert.equal(rep.composite, null);
+    assert.equal(rep.effectiveInformation, rep.estimates.transitionInformation.value);
     assert.ok(rep.gnw.steps === 12);
     assert.ok(rep.disclaimer.toLowerCase().includes('proxies'));
   });

@@ -135,7 +135,7 @@ export const REFERENCES: readonly Reference[] = Object.freeze([
     key: 'okasha2011',
     citation: 'Okasha, S. (2011). Theory choice and social choice: Kuhn versus Arrow. Mind, 120(477), 83–115.',
     doi: '10.1093/mind/fzr010', doiVerified: true,
-    usedFor: 'Prohibition 4 — Arrow\'s theorem applied to theory choice; why Pareto dominance is the only admissible rule.',
+    usedFor: 'Prohibition 4 — Caution about ordinal theory choice; Pareto is the adopted policy, not a universal uniqueness theorem.',
   },
   {
     key: 'craver2007',

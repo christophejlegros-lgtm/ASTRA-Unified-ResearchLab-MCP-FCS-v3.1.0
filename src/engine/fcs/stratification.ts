@@ -8,8 +8,8 @@
  * and document II (§1.4, after Okasha 2011 on Arrow's impossibility theorem
  * applied to theory choice) holds such aggregation formally problematic; the
  * series' negative heuristic forbids it (prohibition 4). The rule adopted is
- * therefore the only one satisfying unanimity without a dictatorship of
- * criterion: Pareto dominance.
+ * an explicit conservative policy: Pareto dominance. Arrow's theorem does not
+ * establish its universal uniqueness; its application requires stated axioms.
  *
  *   A dominates B  ⟺  A is at least as close to the carrier as B on all three
  *                     sub-criteria, and strictly closer on at least one.
@@ -79,7 +79,7 @@ export const EPISODE_WINDOW_ORDINALISATION: TauOrdinalisation = Object.freeze({
   basisFr:
     'Borne inférieure de la plage, découpée à 10⁻¹ s — la fenêtre de l\'épisode conscient nommée ' +
     'par le document IV — puis à 10⁰ s. Reconstruction déclarée : elle reproduit exactement les ' +
-    'huit strates publiées, elle n\'est pas énoncée numériquement par la source.',
+    'huit strates publiées, la source IV v1.3 §2 la déclare ; cet accord ne valide pas les coupes.',
   basisEn:
     'Lower bound of the range, cut at 10⁻¹ s — the conscious-episode window named by document IV — ' +
     'then at 10⁰ s. Reconstructed as the reduction that reproduces the eight published strata, and ' +
@@ -237,9 +237,9 @@ export function canonicalStratification(): StratificationResult {
  *     neither dominates the other. Reading strata as ranks re-introduces the
  *     total order prohibition 4 removed.
  *  2. A pair's stratum depends on which other pairs are present: removing one
- *     pair can shift others. That is a failure of independence of irrelevant
- *     alternatives — the Arrovian condition behind Okasha (2011) — so the index
- *     is a context-dependent label, not a property of the pair.
+ *     pair can shift others. The index is a context-dependent label. Pairwise
+ *     dominance is unchanged by removal of a third pair; label dependence alone
+ *     does not demonstrate failure of Arrovian independence of preferences.
  *
  * The object faithful to document IV §2 is the dominance relation; its Hasse
  * diagram (cover relation) is the minimal exact description of it.

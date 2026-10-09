@@ -353,3 +353,30 @@ describe('Multi-Step Workflow', () => {
     assert.equal(d.status, 'NORMAL');
   });
 });
+
+describe('Consolidated provenance through MCP', () => {
+  before(setupClient);
+  after(() => stopSimulation());
+  it('mode=live cannot create measured biomarkers or a field channel', async () => {
+    await client.callTool({ name:'set_parameter', arguments:{path:'mode',value:'live'} });
+    try {
+      const result=await client.callTool({name:'fcs_conformance',arguments:{substrate:'organoid-mea'}});
+      assert.equal(result.isError,undefined);
+      const data=JSON.parse((result.content as Array<{text:string}>)[0].text);
+      const audit=data.audits[0];
+      assert.equal(audit.pairs.find((p: {pairId:string}) => p.pairId==='7').reading.provenance,'simulated');
+      assert.equal(audit.carrier.fieldObserved.value,null);
+      const welfare=await client.callTool({name:'check_ethics',arguments:{}});
+      const w=JSON.parse((welfare.content as Array<{text:string}>)[0].text);
+      assert.equal(w.dataSource,'simulated'); assert.equal(w.irbLevel,'unassigned');
+    } finally {
+      await client.callTool({name:'set_parameter',arguments:{path:'mode',value:'sim'}});
+    }
+  });
+  it('caller overrides remain reported while state channels remain simulated', async () => {
+    const result=await client.callTool({name:'fcs_conformance',arguments:{substrate:'organoid-mea',extracellularCalciumMm:1.8}});
+    const d=JSON.parse((result.content as Array<{text:string}>)[0].text);
+    assert.equal(d.audits[0].pairs.find((p: {pairId:string}) => p.pairId==='1').reading.provenance,'reported');
+    assert.equal(d.audits[0].pairs.find((p: {pairId:string}) => p.pairId==='7').reading.provenance,'simulated');
+  });
+});

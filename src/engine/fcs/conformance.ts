@@ -29,7 +29,7 @@
  * © 2026 Christophe Jean Legros — Geneva · Assistance Multi IA
  */
 
-import { tagged, withheld, SUBSTRATES, type SubstrateKind, type TaggedScalar } from '../tcai/phenomenal-guard.js';
+import { tagged, withheld, SUBSTRATES, type SubstrateKind, type TaggedScalar, type Provenance } from '../tcai/phenomenal-guard.js';
 import { PAIRS, type CausalRole, type SpeciesFunctionPair } from './taxonomy.js';
 import { canonicalStratification } from './stratification.js';
 import { LEVELS, levelProfile, type FcsLevel, type SubstrateLevelProfile } from './levels.js';
@@ -64,6 +64,8 @@ export interface PairConformance {
  * field yields `undetermined`, never a default standing in for a measurement.
  */
 export interface BiomarkerInputs {
+  /** Per-channel declarations; a bare number defaults to reported, not measured. */
+  sourceByField?: Partial<Record<BiomarkerField, 'simulated' | 'reported' | 'replay' | 'measured'>>;
   /**
    * INTRACELLULAR free calcium, nM — ASTRA `eth.ca`. A second-messenger
    * quantity: reported by the audit, bound to NO species–function pair.
@@ -82,6 +84,13 @@ export interface BiomarkerInputs {
   viabilityPct?: number;
   /** MEA field-potential channel is live and returning signal. */
   meaFieldActive?: boolean;
+}
+
+export type BiomarkerField = 'calciumNm' | 'extracellularCalciumMm' | 'firingRateHz' | 'atpAdpRatio' | 'viabilityPct' | 'meaFieldActive';
+
+function readingProvenance(b: BiomarkerInputs, field: BiomarkerField, derived = false): Provenance {
+  const source = b.sourceByField?.[field] ?? 'reported';
+  return source === 'measured' && derived ? 'derived' : source;
 }
 
 // ── 2. Channel bindings ───────────────────────────────────────────
@@ -108,7 +117,7 @@ const ORGANOID_BINDINGS: Record<string, Binding> = {
       ? withheld(
           'No extracellular calcium channel. ASTRA\'s eth.ca is intracellular free Ca²⁺ (nM), a second-messenger ' +
           'quantity outside class 1; reading it as mobile charge would be the category error document IV §2 forbids.')
-      : tagged(b.extracellularCalciumMm, 'access', 'measured', 'Extracellular Ca²⁺, mM, at the bath (externally supplied).'),
+      : tagged(b.extracellularCalciumMm, 'access', readingProvenance(b, 'extracellularCalciumMm'), 'Extracellular Ca²⁺, mM, externally supplied; source is a declaration, not authenticated here.'),
   },
   '2b': {
     channel: 'eth.viab (culture viability, %)',
@@ -118,7 +127,7 @@ const ORGANOID_BINDINGS: Record<string, Binding> = {
       'pump itself is not assayed — this is a derived indicator, not a measurement of class 2b.',
     read: (b) => b.viabilityPct === undefined
       ? withheld('Viability channel not reporting.')
-      : tagged(b.viabilityPct, 'access', 'derived', 'Culture viability, %, as a permissive-role proxy for Na⁺/K⁺-ATPase.'),
+      : tagged(b.viabilityPct, 'access', readingProvenance(b, 'viabilityPct', true), 'Culture viability, %, as a permissive-role proxy; pump activity not directly assayed.'),
   },
   '3': {
     channel: 'eth.fr (median per-unit spontaneous firing rate, Hz)',
@@ -128,7 +137,7 @@ const ORGANOID_BINDINGS: Record<string, Binding> = {
       'inferred from the discharge they drive. Reference interval: DANDI 001603, 0.14–0.63 Hz (ethics.ts).',
     read: (b) => b.firingRateHz === undefined
       ? withheld('Firing-rate channel not reporting.')
-      : tagged(b.firingRateHz, 'access', 'derived', 'Median per-unit firing rate, Hz, as the class-3 generator signature.'),
+      : tagged(b.firingRateHz, 'access', readingProvenance(b, 'firingRateHz', true), 'Median per-unit firing rate, Hz, as a descriptive class-3 signature; transmitters not assayed.'),
   },
   '7': {
     channel: 'eth.atp (ATP/ADP ratio)',
@@ -137,7 +146,7 @@ const ORGANOID_BINDINGS: Record<string, Binding> = {
       'and prohibition 5 blocks reading a constitutive role off that failure.',
     read: (b) => b.atpAdpRatio === undefined
       ? withheld('ATP/ADP channel not reporting.')
-      : tagged(b.atpAdpRatio, 'access', 'measured', 'ATP/ADP ratio — class-7 energy metabolites.'),
+      : tagged(b.atpAdpRatio, 'access', readingProvenance(b, 'atpAdpRatio'), 'ATP/ADP ratio — declared class-7 input; source not authenticated here.'),
   },
 };
 
@@ -161,6 +170,7 @@ export interface CarrierVerdict {
 
 export interface SubstrateConformance {
   substrate: SubstrateKind;
+  realisationBasis: 'taxonomic-assumption' | 'model-inspection' | 'unobserved';
   label: string;
   isomorphismCaveat: string;
   levels: SubstrateLevelProfile;
@@ -204,7 +214,7 @@ function carrierVerdict(substrate: SubstrateKind, bio: BiomarkerInputs): Carrier
       return {
         carrierPresent: true,
         fieldObserved: bio.meaFieldActive
-          ? tagged(1, 'access', 'measured', 'MEA extracellular field potential channel is live.')
+          ? tagged(1, 'access', readingProvenance(bio, 'meaFieldActive'), 'Field-channel activity declared by the caller; setting mode=live is not evidence of a measurement.')
           : withheld('MEA field channel inactive — carrier present, field not currently observed.'),
         statementEn:
           'Transmembrane ionic currents are present and their field is measurable at the electrode. What the ' +
@@ -313,6 +323,7 @@ export function auditSubstrate(
 
   return {
     substrate,
+    realisationBasis: substrate === 'organoid-mea' ? 'taxonomic-assumption' : substrate === 'silicon-snn' ? 'model-inspection' : 'unobserved',
     label: descriptor.label,
     isomorphismCaveat: descriptor.isomorphismCaveat,
     levels: levelProfile(substrate),

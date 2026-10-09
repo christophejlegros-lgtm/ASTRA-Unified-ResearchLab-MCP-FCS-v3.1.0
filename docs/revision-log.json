@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {"id":"C01","objection":"Unavailable covariance returned as zero","status":"software-corrected","change":"null estimates with reasons and samples","next_test":"external construct and sampling validation"},
+    {"id":"C02","objection":"Observed transitions read as causal information","status":"software-corrected","change":"observational coverage and causalIdentification=false","next_test":"interventions and state-space coverage"},
+    {"id":"C03","objection":"Arrow asserted universal uniqueness of Pareto","status":"interpretation-corrected","change":"explicit FCS policy and invariance of pairwise dominance","next_test":"independent axiomatic review"},
+    {"id":"C04","objection":"Mode flag promoted synthetic data to measurements","status":"software-corrected","change":"per-channel provenance; welfare flags unvalidated","next_test":"authenticated acquisition-channel audit"},
+    {"id":"C05","objection":"Organoid variation and age omitted from predictive model","status":"candidate-implemented-not-biologically-validated","change":"joint age-conditioned Bayesian summary model and new-test leakage guards","next_test":"E3 independent raw data"},
+    {"id":"C06","objection":"Incomplete H1-H3 protocol and no independent review","status":"preparation-delivered-external-work-pending","change":"structured study design, readiness checks and review packet","next_test":"registered experiments and independent reviewers"}
+  ]
+}

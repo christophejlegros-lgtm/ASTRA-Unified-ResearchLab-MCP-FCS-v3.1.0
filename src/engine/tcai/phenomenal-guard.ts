@@ -13,7 +13,8 @@
  *     → access consciousness vs phenomenal consciousness.
  *   · Chalmers (1995), "Facing up to the problem of consciousness",
  *     Journal of Consciousness Studies 2(3), 200–219.
- *     → hard problem: no third-person pipeline yields phenomenal evidence.
+ *     → hard problem: functional signatures alone do not settle phenomenal attribution;
+ *     this guard is an inference policy, not a theorem against empirical study.
  *   · Chalmers, "Absent Qualia, Fading Qualia, Dancing Qualia" (1995)
  *     → functional isomorphism as the operative criterion.
  *   · Argonov (2014), "Experimental Methods for Unraveling the Mind-body
@@ -54,6 +55,9 @@ export type Provenance =
   | 'derived'       // deterministic function of measured quantities
   | 'prior'         // held at a configured default — NOT an estimate
   | 'endogenous'    // produced by ASTRA's own state, not by the subject
+  | 'simulated'     // explicitly synthetic biological/physiological input
+  | 'reported'      // caller supplied; instrument provenance not authenticated
+  | 'replay'        // recorded source declared by an external provider
   | 'unavailable';  // deliberately absent; downstream must handle null
 
 /** A scalar that carries its own epistemic passport. */

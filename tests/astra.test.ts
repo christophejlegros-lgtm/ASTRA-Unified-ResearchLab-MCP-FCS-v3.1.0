@@ -417,7 +417,11 @@ describe('EthicsMonitor', () => {
     state.set('mode', 'live');
     const report = monitor.assess();
     assert.equal(report.irbRequired, true);
-    assert.ok(report.disclaimer.includes('LIVE'));
+    assert.equal(report.dataSource, 'simulated');
+    assert.equal(report.requestedMode, 'live');
+    assert.equal(report.irbLevel, 'unassigned');
+    assert.equal(report.welfareValidation, 'not-validated');
+    assert.ok(report.disclaimer.includes('SIMULATED'));
     state.set('mode', 'sim'); // restore
   });
 
@@ -445,7 +449,8 @@ describe('EthicsMonitor', () => {
     state.set('mode', 'live');
     const liveReport = monitor.assess();
     assert.ok(liveReport.recommendation.includes('HALT'));
-    assert.ok(liveReport.recommendation.includes('IRB'));
+    assert.equal(liveReport.dataSource, 'simulated');
+    assert.ok(liveReport.recommendation.includes('[SIM]'));
 
     state.set('mode', 'sim');
     state.set('eth.viab', 95);

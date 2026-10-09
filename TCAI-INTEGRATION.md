@@ -27,8 +27,8 @@
 | `models/memory/attention_schema.py` | `src/engine/tcai/self-model.ts` (`AttentionSchema`) | Graziano AST: focus target, intensity, stability trace |
 | `models/self_model/self_representation_core.py` | `src/engine/tcai/self-model.ts` | Interoception (energy/stress/effort) · epistemic model (uncertainty, learning progress) · temporal continuity · confidence calibration · performance EMA |
 | `models/evaluation/gnw_metrics.py` | `src/engine/tcai/metrics.ts` (`GNWMetrics`) | Ignition events/rate · broadcast availability · reuse events |
-| `models/evaluation/effective_information.py` | `metrics.ts` (`computeEffectiveInformation`) | TPM from discretized trajectories · EI = H(⟨row⟩) − ⟨H(row)⟩ (Hoel) |
-| `models/evaluation/phi_riiu.py` | `metrics.ts` (`RIIUPhi`) | Sliding latent buffer · Φ̃ = covariance integration ratio (analytical surrogate for the learned low-rank `AutoPhiSurrogate`) |
+| `models/evaluation/effective_information.py` | `metrics.ts` (`computeEffectiveInformation`) | Observed transitions · H(mean visited row) − mean H(visited row), uniformly weighted; not a causal TPM |
+| `models/evaluation/phi_riiu.py` | `metrics.ts` (`RIIUPhi`) | Sliding latent buffer · Φ̃ = absolute-covariance ratio; no certified approximation to IIT Phi |
 | `models/core/consciousness_core.py` (orchestration) | `src/engine/tcai/acm-bridge.ts` (`TCAIConsciousnessSystem`) | Full loop: specialists → binding → ignition → broadcast → qualia → emotion → reward → memory → self → metrics |
 
 **Substitutions (no GPU/PyTorch in the Node runtime):** LLaMA 3.3-based emotion fine-tuning → analytical PAD appraisal; learned Φ surrogate → covariance integration ratio; tensor payload fusion → vector softmax fusion. The original implementations remain fully available in `python/the_consciousness_ai/` (use `requirements.txt` there).
@@ -42,7 +42,7 @@
 | `tcai_emotion_appraise` | PAD appraisal of raw signals with inertia |
 | `tcai_memory_store` / `tcai_memory_retrieve` | Emotional memory write/read |
 | `tcai_self_model` | Self-representation + attention schema |
-| `tcai_metrics` | GNW · EI · Φ̃-RIIU composite report |
+| `tcai_metrics` | Separate GNW · observed-transition · covariance estimates; composite withheld |
 | `tcai_reset` | Reset all TCAI subsystems |
 
 Resource `astra://tcai/state` · Prompt `tcai-consciousness-cycle` (guided experiment).
@@ -75,3 +75,8 @@ World Model (LeWM) ──surprise──────► novelty / predictionError
 ---
 © 2026 Christophe Jean Legros — Genève · Assistance Multi IA · Assistant-Multi-IA@proton.me
 Upstream ACM: © tlcdv/the_consciousness_ai (vendored under `python/`, see its repository for license terms).
+
+
+## v3.2 consolidation
+
+`phiRIIUProxy` and `effectiveInformation` may be null. `estimates` carries availability, sample counts, construct and limitations; `gnwAvailability` distinguishes empty counters from observed ratios. `composite` is withheld (null), not a consciousness score. See `docs/PROXY-MEASUREMENT-CARDS.md`.

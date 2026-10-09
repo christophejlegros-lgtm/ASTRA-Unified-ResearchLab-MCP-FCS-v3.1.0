@@ -10,7 +10,7 @@
  *   tcai_memory_store      — attention-gated emotional memory storage
  *   tcai_memory_retrieve   — blended similarity/congruence/salience recall
  *   tcai_self_model        — self-representation + attention schema state
- *   tcai_metrics           — GNW · EI · Φ̃-RIIU composite report
+ *   tcai_metrics           — separate GNW · observed-transition · covariance estimates
  *   tcai_reset             — reset the consciousness system
  *
  *   ── Second-order (self-evidencing) loop — NEW in v2.9 ──
@@ -130,6 +130,7 @@ export function registerTCAICapabilities(server: McpServer, getState: GetBridgeS
         emotion: last?.emotion, reward: last?.reward,
         memoryStored: last?.memoryStored, selfContinuity: last?.selfContinuity,
         phiRIIU: last?.phiRIIU,
+        phiEstimate: last?.phiEstimate,
         secondOrder: last?.secondOrder ? {
           learningVelocity: last.secondOrder.metaLearning.learningVelocity,
           noveltySpike: last.secondOrder.metaLearning.noveltySpike,
@@ -232,7 +233,7 @@ export function registerTCAICapabilities(server: McpServer, getState: GetBridgeS
 
   // ── Tool 7: metrics report ───────────────────────────────────────
   server.tool('tcai_metrics',
-    'Consciousness proxy report: GNW metrics, Effective Information, Φ̃-RIIU, composite score',
+    'Separate descriptive GNW, observed-transition and covariance estimates with sample coverage and availability. No composite scale or causal identification.',
     {},
     toolAnnotations('tcai_metrics'), async () => json(tcaiSystem.report()));
 
